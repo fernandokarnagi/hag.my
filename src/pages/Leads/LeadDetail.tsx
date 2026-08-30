@@ -5,7 +5,7 @@ import { useToast } from '@/components/Toast';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { LEAD_STATUS_OPTIONS, PIPELINE_STAGES } from '@/types';
 import type { LeadStatus } from '@/types';
-import { Edit, Trash2, ArrowLeft, MapPin, Phone, Calendar, User, History, Save } from 'lucide-react';
+import { Edit, Trash2, ArrowLeft, MapPin, Phone, Calendar, User, History } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getAuditLogs, type AuditLog } from '@/services/auditService';
 import { hasPermission } from '@/lib/permissions';
@@ -21,76 +21,16 @@ export function LeadDetail() {
   const [showDelete, setShowDelete] = useState(false);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [showAudit, setShowAudit] = useState(false);
-  const [selectedStages, setSelectedStages] = useState<Set<string>>(new Set());
-  const [hasChanges, setHasChanges] = useState(false);
 
   const canEdit = hasPermission(userProfile?.role, 'canEditLead');
   const canDelete = hasPermission(userProfile?.role, 'canDeleteLead');
   const canViewAudit = hasPermission(userProfile?.role, 'canViewAuditLog');
 
   useEffect(() => {
-    if (lead) {
-      setSelectedStages(new Set(lead.completedStages || []));
-    }
-  }, [lead]);
-
-  useEffect(() => {
     if (id && showAudit) {
       getAuditLogs(id).then(setAuditLogs);
     }
   }, [id, showAudit]);
-
-  function isStageDone(stage: string): boolean {
-    return selectedStages.has(stage);
-  }
-
-  function handleStageToggle(stage: string) {
-    setSelectedStages((prev) => {
-      const next = new Set(prev);
-      if (next.has(stage)) {
-        next.delete(stage);
-      } else {
-        next.add(stage);
-      }
-      return next;
-    });
-    setHasChanges(true);
-  }
-
-  function getHighestStage(stages: Set<string>): LeadStatus {
-    for (let i = PIPELINE_STAGES.length - 1; i >= 0; i--) {
-      if (stages.has(PIPELINE_STAGES[i])) {
-        return PIPELINE_STAGES[i];
-      }
-    }
-    return 'GOOGLE_FORM-INCOMING';
-  }
-
-  async function handleSaveStages() {
-    if (!lead || !userProfile) return;
-    const newStatus = getHighestStage(selectedStages);
-    await updateLead.mutateAsync({
-      id: lead.id,
-      data: { status: newStatus, completedStages: Array.from(selectedStages) },
-      userId: userProfile.uid,
-      userName: userProfile.displayName,
-      oldData: { status: lead.status, completedStages: lead.completedStages },
-    });
-    setHasChanges(false);
-    toast('Stages updated', 'success');
-  }
-
-  async function handleStatusChange(newStatus: LeadStatus) {
-    if (!lead || !userProfile) return;
-    await updateLead.mutateAsync({
-      id: lead.id,
-      data: { status: newStatus },
-      userId: userProfile.uid,
-      userName: userProfile.displayName,
-      oldData: { status: lead.status },
-    });
-    toast('Status updated successfully', 'success');
-  }
 
   async function handleDelete() {
     if (!lead || !userProfile) return;
@@ -126,7 +66,7 @@ export function LeadDetail() {
     );
   }
 
-  const currentStageIndex = PIPELINE_STAGES.indexOf(lead.status);
+  const completedCount = lead.completedStages?.length || 0;
 
   return (
     <div className="space-y-6">
@@ -167,7 +107,7 @@ export function LeadDetail() {
                 {LEAD_STATUS_OPTIONS.find((o) => o.value === lead.status)?.label || lead.status}
               </span>
               <span className="text-xs text-text-muted">
-                ({selectedStages.size} of {PIPELINE_STAGES.length} stages completed)
+                ({completedCount} of {PIPELINE_STAGES.length} stages completed)
               </span>
             </div>
           </div>
@@ -175,37 +115,21 @@ export function LeadDetail() {
       </div>
 
       <div className="card p-6">
-        <div className="flex items-center justify-between mb-4">
-          <label className="text-xs font-medium uppercase text-text-muted">Pipeline Stages</label>
-          {canEdit && hasChanges && (
-            <button onClick={handleSaveStages} disabled={updateLead.isPending} className="btn btn-primary btn-sm">
-              <Save className="h-3 w-3" /> {updateLead.isPending ? 'Saving...' : 'Save'}
-            </button>
-          )}
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <label className="mb-3 block text-xs font-medium uppercase text-text-muted">Pipeline Stages</label>
+        <div className="flex flex-wrap gap-2">
           {PIPELINE_STAGES.map((stage) => {
-            const isDone = isStageDone(stage);
+            const isDone = lead.completedStages?.includes(stage) || false;
             return (
-              <label
+              <div
                 key={stage}
-                className={`flex items-center gap-2 rounded-lg border p-2.5 cursor-pointer transition-all ${
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
                   isDone
-                    ? 'border-success bg-success/10'
-                    : 'border-border hover:border-text-muted'
+                    ? 'bg-success/10 text-success border border-success/20'
+                    : 'bg-surface-light text-text-muted border border-border'
                 }`}
               >
-                <input
-                  type="checkbox"
-                  checked={isDone}
-                  onChange={() => handleStageToggle(stage)}
-                  disabled={!canEdit}
-                  className="h-4 w-4 rounded border-gray-300 text-success focus:ring-success"
-                />
-                <span className={`text-sm ${isDone ? 'text-success font-medium' : 'text-text-secondary'}`}>
-                  {LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label || stage}
-                </span>
-              </label>
+                {LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label}
+              </div>
             );
           })}
         </div>

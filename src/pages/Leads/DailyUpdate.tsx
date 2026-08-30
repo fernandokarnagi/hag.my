@@ -4,7 +4,7 @@ import { useAuthContext } from '@/components/AuthProvider';
 import { useToast } from '@/components/Toast';
 import { PIPELINE_STAGES, LEAD_STATUS_OPTIONS } from '@/types';
 import type { LeadStatus } from '@/types';
-import { Save, RotateCcw, ClipboardList, Info } from 'lucide-react';
+import { Save, RotateCcw, ClipboardList, MessageSquare, X } from 'lucide-react';
 
 export function DailyUpdate() {
   const { toast } = useToast();
@@ -12,9 +12,12 @@ export function DailyUpdate() {
   const { data: leads = [], isLoading } = useLeads();
   const updateLead = useUpdateLead();
   const [dotOverrides, setDotOverrides] = useState<Record<string, Record<string, boolean>>>({});
+  const [comments, setComments] = useState<Record<string, string>>({});
   const [search, setSearch] = useState('');
   const [salesFilter, setSalesFilter] = useState('');
   const [hoveredStage, setHoveredStage] = useState<string | null>(null);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [showCommentModal, setShowCommentModal] = useState(false);
 
   const filteredLeads = leads.filter((l) => {
     if (search) {
@@ -59,6 +62,18 @@ export function DailyUpdate() {
     return 'GOOGLE_FORM-INCOMING';
   }
 
+  function openCommentModal(leadId: string) {
+    setSelectedLeadId(leadId);
+    setShowCommentModal(true);
+  }
+
+  function saveComment() {
+    if (selectedLeadId && comments[selectedLeadId] !== undefined) {
+      setShowCommentModal(false);
+      setSelectedLeadId(null);
+    }
+  }
+
   async function handleSave() {
     if (!userProfile) return;
     const updates = Object.keys(dotOverrides).map((leadId) => {
@@ -66,13 +81,24 @@ export function DailyUpdate() {
       if (!lead) return null;
       const selectedStages = getSelectedStages(leadId, lead.completedStages);
       const newStatus = getHighestStage(selectedStages);
-      if (newStatus === lead.status && JSON.stringify(selectedStages.sort()) === JSON.stringify((lead.completedStages || []).sort())) return null;
+      const newComment = comments[leadId];
+      const hasStatusChange = newStatus !== lead.status;
+      const hasCommentChange = newComment !== undefined && newComment !== (lead.remarks || '');
+      if (!hasStatusChange && !hasCommentChange) return null;
+      const data: any = {};
+      if (hasStatusChange) {
+        data.status = newStatus;
+        data.completedStages = selectedStages;
+      }
+      if (hasCommentChange) {
+        data.remarks = newComment;
+      }
       return {
         id: leadId,
-        data: { status: newStatus, completedStages: selectedStages },
+        data,
         userId: userProfile.uid,
         userName: userProfile.displayName,
-        oldData: { status: lead.status, customerCode: lead.customerCode },
+        oldData: { status: lead.status, customerCode: lead.customerCode, remarks: lead.remarks },
       };
     }).filter(Boolean);
 
@@ -84,14 +110,16 @@ export function DailyUpdate() {
     try {
       await Promise.all(updates.map((u) => updateLead.mutateAsync(u!)));
       setDotOverrides({});
+      setComments({});
       toast(`${updates.length} leads updated`, 'success');
     } catch {
       toast('Failed to save', 'error');
     }
   }
 
-  const hasChanges = Object.keys(dotOverrides).length > 0;
+  const hasChanges = Object.keys(dotOverrides).length > 0 || Object.keys(comments).length > 0;
   const salesExecs = [...new Set(leads.map((l) => l.salesExecutive).filter(Boolean))].sort();
+  const selectedLead = selectedLeadId ? leads.find((l) => l.id === selectedLeadId) : null;
 
   if (isLoading) return <div className="space-y-4">{[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-12 skeleton" />)}</div>;
 
@@ -100,12 +128,12 @@ export function DailyUpdate() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Daily Update</h1>
-          <p className="text-sm text-text-secondary">Click dots to toggle — each is independent</p>
+          <p className="text-sm text-text-secondary">Click dots to toggle, click comment icon to add remarks</p>
         </div>
         <div className="flex gap-2">
           {hasChanges && (
             <>
-              <button onClick={() => setDotOverrides({})} className="btn btn-secondary btn-md"><RotateCcw className="h-4 w-4" /> Reset</button>
+              <button onClick={() => { setDotOverrides({}); setComments({}); }} className="btn btn-secondary btn-md"><RotateCcw className="h-4 w-4" /> Reset</button>
               <button onClick={handleSave} disabled={updateLead.isPending} className="btn btn-primary btn-md"><Save className="h-4 w-4" /> {updateLead.isPending ? 'Saving...' : 'Save'}</button>
             </>
           )}
@@ -130,6 +158,7 @@ export function DailyUpdate() {
                 <th className="sticky left-0 z-10 bg-surface-light px-3 py-3 text-left text-xs font-medium uppercase text-text-muted min-w-[100px]">Code</th>
                 <th className="sticky left-[100px] z-10 bg-surface-light px-3 py-3 text-left text-xs font-medium uppercase text-text-muted min-w-[130px]">Name</th>
                 <th className="px-3 py-3 text-left text-xs font-medium uppercase text-text-muted min-w-[90px]">Sales Exec</th>
+                <th className="px-3 py-3 text-center text-xs font-medium uppercase text-text-muted min-w-[50px]">Note</th>
                 {PIPELINE_STAGES.map((stage) => {
                   const label = LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label || stage;
                   return (
@@ -154,7 +183,7 @@ export function DailyUpdate() {
             <tbody>
               {filteredLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={3 + PIPELINE_STAGES.length} className="px-4 py-16 text-center">
+                  <td colSpan={4 + PIPELINE_STAGES.length} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center">
                       <div className="mb-4 rounded-full bg-surface-light p-4"><ClipboardList className="h-8 w-8 text-text-muted" /></div>
                       <p className="text-text-secondary">No leads found</p>
@@ -167,6 +196,15 @@ export function DailyUpdate() {
                     <td className="sticky left-0 z-10 bg-white px-3 py-2.5 text-xs font-mono font-medium border-r border-border">{lead.customerCode}</td>
                     <td className="sticky left-[100px] z-10 bg-white px-3 py-2.5 text-xs border-r border-border">{lead.clientName}</td>
                     <td className="px-3 py-2.5 text-xs text-text-secondary">{lead.salesExecutive || '-'}</td>
+                    <td className="px-3 py-2.5 text-center">
+                      <button
+                        onClick={() => openCommentModal(lead.id)}
+                        className={`p-1 rounded transition-colors ${comments[lead.id] !== undefined ? 'text-accent bg-accent/10' : lead.remarks ? 'text-success' : 'text-text-muted hover:text-text'}`}
+                        title={lead.remarks || 'Add comment'}
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                      </button>
+                    </td>
                     {PIPELINE_STAGES.map((stage) => {
                       const done = isDotDone(lead.id, stage, lead.completedStages);
                       return (
@@ -194,7 +232,36 @@ export function DailyUpdate() {
       <div className="flex items-center gap-6 text-xs text-text-muted">
         <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-success" /> Selected</span>
         <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2 border-border" /> Not selected</span>
+        <span className="flex items-center gap-2"><MessageSquare className="h-3 w-3" /> Comment</span>
       </div>
+
+      {showCommentModal && selectedLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/30 animate-fade-in" onClick={() => setShowCommentModal(false)} />
+          <div className="relative w-full max-w-lg animate-scale-in">
+            <div className="card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-text">Comment / Remark</h2>
+                  <p className="text-sm text-text-secondary">{selectedLead.clientName} ({selectedLead.customerCode})</p>
+                </div>
+                <button onClick={() => setShowCommentModal(false)} className="text-text-muted hover:text-text"><X className="h-5 w-5" /></button>
+              </div>
+              <textarea
+                value={comments[selectedLeadId!] !== undefined ? comments[selectedLeadId!] : selectedLead.remarks || ''}
+                onChange={(e) => setComments({ ...comments, [selectedLeadId!]: e.target.value })}
+                className="input-field resize-none"
+                rows={5}
+                placeholder="Add your comment or remark..."
+              />
+              <div className="flex justify-end gap-3 mt-4">
+                <button onClick={() => setShowCommentModal(false)} className="btn btn-secondary btn-md">Cancel</button>
+                <button onClick={saveComment} className="btn btn-primary btn-md">Save Comment</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
