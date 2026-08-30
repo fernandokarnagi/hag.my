@@ -66,14 +66,13 @@ export function LeadList() {
 
       <div className="card p-4">
         <form onSubmit={handleSearch} className="flex items-center gap-3">
-          <div className="relative flex-[3]">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 text-text-muted" />
+          <div className="flex-[3]">
             <input
               type="text"
               placeholder="Search by code, name, phone, or location..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="input-field pl-9"
+              className="input-field"
             />
           </div>
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); setHasSearched(true); }} className="input-field flex-1">
