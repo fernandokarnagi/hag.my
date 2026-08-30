@@ -48,8 +48,9 @@ export function Sidebar() {
         <div className="fixed inset-0 z-40 bg-black/30 md:hidden animate-fade-in" onClick={() => setMobileOpen(false)} />
       )}
 
-      <aside className={`sidebar transition-transform duration-300 ease-out md:translate-x-0 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex h-16 items-center gap-3 border-b border-border px-5">
+      <aside className={`sidebar flex flex-col transition-transform duration-300 ease-out md:translate-x-0 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* Header */}
+        <div className="flex h-16 items-center gap-3 border-b border-border px-5 shrink-0">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10">
             <Zap className="h-5 w-5 text-accent" />
           </div>
@@ -62,7 +63,8 @@ export function Sidebar() {
           </button>
         </div>
 
-        <nav className="mt-4 space-y-1 px-3">
+        {/* Scrollable Navigation */}
+        <nav className="flex-1 overflow-y-auto mt-4 space-y-1 px-3 py-2">
           {accessibleNavItems.map((item) => (
             <NavLink
               key={item.to}
@@ -77,7 +79,7 @@ export function Sidebar() {
           ))}
 
           {accessibleSettingsItems.length > 0 && (
-            <div className="mt-2">
+            <div className="mt-4">
               <div className="flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase text-text-muted">
                 <Settings className="h-4 w-4" />
                 Settings
@@ -99,7 +101,8 @@ export function Sidebar() {
           )}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4">
+        {/* Footer */}
+        <div className="border-t border-border p-4 shrink-0">
           <div className="mb-3 px-1">
             <p className="text-sm font-medium text-text truncate">{userProfile?.displayName || 'User'}</p>
             <p className="text-xs text-text-muted capitalize">{userProfile?.role || 'Loading...'}</p>
