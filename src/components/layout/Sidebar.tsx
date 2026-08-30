@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, ClipboardList, FileText, Settings, LogOut, Menu, X, Zap, User, UserCog, ListChecks, Home,
+  LayoutDashboard, Users, ClipboardList, FileText, Settings, LogOut, Menu, X, Zap, User, UserCog, ListChecks, Home, Zap as ZapIcon, Battery, UserSquare,
 } from 'lucide-react';
 import { logoutUser } from '@/services/authService';
 import { useAuthContext } from '@/components/AuthProvider';
@@ -16,8 +16,11 @@ const navItems = [
 
 const settingsItems = [
   { to: '/settings/users', icon: UserCog, label: 'Users', page: 'settings' },
+  { to: '/settings/employees', icon: UserSquare, label: 'Employees', page: 'settings' },
   { to: '/settings/statuses', icon: ListChecks, label: 'Lead Statuses', page: 'settings' },
   { to: '/settings/property-types', icon: Home, label: 'Property Types', page: 'settings' },
+  { to: '/settings/phases', icon: ZapIcon, label: 'Phases', page: 'settings' },
+  { to: '/settings/preferred-systems', icon: Battery, label: 'Preferred Systems', page: 'settings' },
 ];
 
 export function Sidebar() {

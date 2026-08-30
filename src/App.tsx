@@ -13,6 +13,9 @@ import { Reports } from '@/pages/Reports/Reports';
 import { Settings } from '@/pages/Settings/Settings';
 import { LeadStatuses } from '@/pages/Settings/LeadStatuses';
 import { PropertyTypes } from '@/pages/Settings/PropertyTypes';
+import { Phases } from '@/pages/Settings/Phases';
+import { PreferredSystems } from '@/pages/Settings/PreferredSystems';
+import { Employees } from '@/pages/Settings/Employees';
 import { EditProfile } from '@/pages/Profile/EditProfile';
 
 const queryClient = new QueryClient({
@@ -52,8 +55,11 @@ function AppRoutes() {
       <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/settings/users" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/settings/employees" element={<ProtectedRoute><Employees /></ProtectedRoute>} />
       <Route path="/settings/statuses" element={<ProtectedRoute><LeadStatuses /></ProtectedRoute>} />
       <Route path="/settings/property-types" element={<ProtectedRoute><PropertyTypes /></ProtectedRoute>} />
+      <Route path="/settings/phases" element={<ProtectedRoute><Phases /></ProtectedRoute>} />
+      <Route path="/settings/preferred-systems" element={<ProtectedRoute><PreferredSystems /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
     </Routes>
   );

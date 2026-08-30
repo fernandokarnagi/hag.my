@@ -1,23 +1,36 @@
 import { useState } from 'react';
-import { usePropertyTypes, useAddPropertyType, useUpdatePropertyType, useDeletePropertyType } from '@/hooks/useOptions';
 import { useToast } from '@/components/Toast';
 import { useAuthContext } from '@/components/AuthProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { hasPermission } from '@/lib/permissions';
 import { Plus, X, Shield } from 'lucide-react';
-import type { PropertyTypeItem } from '@/services/optionService';
 
-export function PropertyTypes() {
+interface OptionItem {
+  id: string;
+  value: string;
+  label: string;
+  order: number;
+  active: boolean;
+}
+
+interface OptionPageProps {
+  title: string;
+  subtitle: string;
+  items: OptionItem[];
+  isLoading: boolean;
+  onAdd: (data: Omit<OptionItem, 'id'>) => Promise<any>;
+  onUpdate: (id: string, data: Partial<OptionItem>) => Promise<any>;
+  onDelete: (id: string) => Promise<any>;
+}
+
+export function OptionPage({ title, subtitle, items, isLoading, onAdd, onUpdate, onDelete }: OptionPageProps) {
   const { userProfile } = useAuthContext();
   const { toast } = useToast();
-  const { data: types = [], isLoading } = usePropertyTypes();
-  const addType = useAddPropertyType();
-  const updateType = useUpdatePropertyType();
-  const deleteType = useDeletePropertyType();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ value: '', label: '' });
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; label: string } | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const canManage = hasPermission(userProfile?.role, 'canManageUsers');
 
@@ -32,18 +45,20 @@ export function PropertyTypes() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSaving(true);
     try {
       if (editId) {
-        await updateType.mutateAsync({ id: editId, data: { value: form.value, label: form.label } });
-        toast('Type updated', 'success');
+        await onUpdate(editId, { value: form.value, label: form.label });
+        toast('Updated successfully', 'success');
       } else {
-        await addType.mutateAsync({ value: form.value, label: form.label, order: types.length, active: true });
-        toast('Type added', 'success');
+        await onAdd({ value: form.value, label: form.label, order: items.length, active: true });
+        toast('Added successfully', 'success');
       }
       setShowForm(false);
       setEditId(null);
       setForm({ value: '', label: '' });
     } catch { toast('Failed to save', 'error'); }
+    setSaving(false);
   }
 
   function handleEdit(id: string, value: string, label: string) {
@@ -54,13 +69,13 @@ export function PropertyTypes() {
 
   async function handleDelete() {
     if (!deleteConfirm) return;
-    try { await deleteType.mutateAsync(deleteConfirm.id); toast('Type deleted', 'success'); }
+    try { await onDelete(deleteConfirm.id); toast('Deleted', 'success'); }
     catch { toast('Failed to delete', 'error'); }
     setDeleteConfirm(null);
   }
 
   async function handleToggleActive(id: string, active: boolean) {
-    try { await updateType.mutateAsync({ id, data: { active } }); toast(active ? 'Activated' : 'Deactivated', 'success'); }
+    try { await onUpdate(id, { active }); toast(active ? 'Activated' : 'Deactivated', 'success'); }
     catch { toast('Failed to update', 'error'); }
   }
 
@@ -70,11 +85,11 @@ export function PropertyTypes() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">Property Types</h1>
-          <p className="text-sm text-text-secondary">{types.length} types configured</p>
+          <h1 className="text-2xl font-bold text-text">{title}</h1>
+          <p className="text-sm text-text-secondary">{items.length} {subtitle}</p>
         </div>
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ value: '', label: '' }); }} className="btn btn-primary btn-md">
-          <Plus className="h-4 w-4" /> Add Type
+          <Plus className="h-4 w-4" /> Add
         </button>
       </div>
 
@@ -89,18 +104,18 @@ export function PropertyTypes() {
             </tr>
           </thead>
           <tbody>
-            {types.map((t) => (
-              <tr key={t.id} className="table-row">
-                <td className="px-6 py-4 text-sm font-medium text-text">{t.label}</td>
-                <td className="px-6 py-4 text-sm font-mono text-text-secondary">{t.value}</td>
+            {items.map((item) => (
+              <tr key={item.id} className="table-row">
+                <td className="px-6 py-4 text-sm font-medium text-text">{item.label}</td>
+                <td className="px-6 py-4 text-sm font-mono text-text-secondary">{item.value}</td>
                 <td className="px-6 py-4">
-                  <button onClick={() => handleToggleActive(t.id, !t.active)} className={`badge cursor-pointer transition-all ${t.active ? 'badge-success' : 'badge-danger'}`}>
-                    {t.active ? 'Active' : 'Inactive'}
+                  <button onClick={() => handleToggleActive(item.id, !item.active)} className={`badge cursor-pointer transition-all ${item.active ? 'badge-success' : 'badge-danger'}`}>
+                    {item.active ? 'Active' : 'Inactive'}
                   </button>
                 </td>
                 <td className="px-6 py-4 flex gap-2">
-                  <button onClick={() => handleEdit(t.id, t.value, t.label)} className="text-sm text-accent hover:text-accent-hover">Edit</button>
-                  <button onClick={() => setDeleteConfirm({ id: t.id, label: t.label })} className="text-sm text-danger hover:text-danger-hover">Delete</button>
+                  <button onClick={() => handleEdit(item.id, item.value, item.label)} className="text-sm text-accent hover:text-accent-hover">Edit</button>
+                  <button onClick={() => setDeleteConfirm({ id: item.id, label: item.label })} className="text-sm text-danger hover:text-danger-hover">Delete</button>
                 </td>
               </tr>
             ))}
@@ -114,23 +129,21 @@ export function PropertyTypes() {
           <div className="relative w-full max-w-md animate-scale-in">
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-text">{editId ? 'Edit Type' : 'Add Type'}</h2>
+                <h2 className="text-lg font-semibold text-text">{editId ? 'Edit' : 'Add New'}</h2>
                 <button onClick={() => setShowForm(false)} className="text-text-muted hover:text-text"><X className="h-5 w-5" /></button>
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-text-secondary">Label</label>
-                  <input type="text" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} className="input-field" placeholder="e.g. Terrace" required />
+                  <input type="text" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} className="input-field" required />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-text-secondary">Value</label>
-                  <input type="text" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} className="input-field font-mono" placeholder="Terrace" required />
+                  <input type="text" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} className="input-field font-mono" required />
                 </div>
                 <div className="flex justify-end gap-3 pt-4 border-t border-border">
                   <button type="button" onClick={() => setShowForm(false)} className="btn btn-secondary btn-md">Cancel</button>
-                  <button type="submit" disabled={addType.isPending || updateType.isPending} className="btn btn-primary btn-md">
-                    {addType.isPending || updateType.isPending ? 'Saving...' : 'Save'}
-                  </button>
+                  <button type="submit" disabled={saving} className="btn btn-primary btn-md">{saving ? 'Saving...' : 'Save'}</button>
                 </div>
               </form>
             </div>
@@ -138,7 +151,7 @@ export function PropertyTypes() {
         </div>
       )}
 
-      <ConfirmDialog open={!!deleteConfirm} title="Delete Type" message={`Delete "${deleteConfirm?.label}"? This cannot be undone.`} confirmLabel="Delete" danger onConfirm={handleDelete} onCancel={() => setDeleteConfirm(null)} />
+      <ConfirmDialog open={!!deleteConfirm} title="Delete Item" message={`Delete "${deleteConfirm?.label}"? This cannot be undone.`} confirmLabel="Delete" danger onConfirm={handleDelete} onCancel={() => setDeleteConfirm(null)} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useAuthContext } from '@/components/AuthProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { hasPermission } from '@/lib/permissions';
 import { Plus, X, Shield } from 'lucide-react';
+import type { LeadStatusItem } from '@/services/optionService';
 
 export function LeadStatuses() {
   const { userProfile } = useAuthContext();

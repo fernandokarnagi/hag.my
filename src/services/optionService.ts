@@ -1,7 +1,7 @@
 import { collection, doc, addDoc, updateDoc, deleteDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
 
-export interface LeadStatusItem {
+export interface OptionItem {
   id: string;
   value: string;
   label: string;
@@ -9,51 +9,70 @@ export interface LeadStatusItem {
   active: boolean;
 }
 
-export interface PropertyTypeItem {
+export type LeadStatusItem = OptionItem;
+export type PropertyTypeItem = OptionItem;
+
+export interface Employee {
   id: string;
-  value: string;
-  label: string;
-  order: number;
+  name: string;
+  role: string;
   active: boolean;
 }
 
-const LEAD_STATUSES_REF = collection(db, 'leadStatuses');
-const PROPERTY_TYPES_REF = collection(db, 'propertyTypes');
+// Generic option CRUD
+function createOptionService(collectionName: string) {
+  const ref = collection(db, collectionName);
 
-// Lead Statuses
-export async function getLeadStatuses(): Promise<LeadStatusItem[]> {
-  const q = query(LEAD_STATUSES_REF, orderBy('order', 'asc'));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as LeadStatusItem));
+  return {
+    async getAll(): Promise<OptionItem[]> {
+      const q = query(ref, orderBy('order', 'asc'));
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => ({ id: d.id, ...d.data() } as OptionItem));
+    },
+    async add(data: Omit<OptionItem, 'id'>) {
+      await addDoc(ref, data);
+    },
+    async update(id: string, data: Partial<OptionItem>) {
+      await updateDoc(doc(db, collectionName, id), data);
+    },
+    async remove(id: string) {
+      await deleteDoc(doc(db, collectionName, id));
+    },
+  };
 }
 
-export async function addLeadStatus(data: Omit<LeadStatusItem, 'id'>) {
-  await addDoc(LEAD_STATUSES_REF, data);
-}
+// Employee CRUD
+const EMPLOYEES_REF = collection(db, 'employees');
 
-export async function updateLeadStatus(id: string, data: Partial<LeadStatusItem>) {
-  await updateDoc(doc(db, 'leadStatuses', id), data);
-}
+export const employeeService = {
+  async getAll(): Promise<Employee[]> {
+    const q = query(EMPLOYEES_REF, orderBy('name', 'asc'));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Employee));
+  },
+  async add(data: Omit<Employee, 'id'>) {
+    await addDoc(EMPLOYEES_REF, data);
+  },
+  async update(id: string, data: Partial<Employee>) {
+    await updateDoc(doc(db, 'employees', id), data);
+  },
+  async remove(id: string) {
+    await deleteDoc(doc(db, 'employees', id));
+  },
+};
 
-export async function deleteLeadStatus(id: string) {
-  await deleteDoc(doc(db, 'leadStatuses', id));
-}
+export const leadStatusService = createOptionService('leadStatuses');
+export const propertyTypeService = createOptionService('propertyTypes');
+export const phaseService = createOptionService('phases');
+export const preferredSystemService = createOptionService('preferredSystems');
 
-// Property Types
-export async function getPropertyTypes(): Promise<PropertyTypeItem[]> {
-  const q = query(PROPERTY_TYPES_REF, orderBy('order', 'asc'));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as PropertyTypeItem));
-}
+// Export individual functions for backward compatibility
+export const getLeadStatuses = leadStatusService.getAll;
+export const addLeadStatus = leadStatusService.add;
+export const updateLeadStatus = leadStatusService.update;
+export const deleteLeadStatus = leadStatusService.remove;
 
-export async function addPropertyType(data: Omit<PropertyTypeItem, 'id'>) {
-  await addDoc(PROPERTY_TYPES_REF, data);
-}
-
-export async function updatePropertyType(id: string, data: Partial<PropertyTypeItem>) {
-  await updateDoc(doc(db, 'propertyTypes', id), data);
-}
-
-export async function deletePropertyType(id: string) {
-  await deleteDoc(doc(db, 'propertyTypes', id));
-}
+export const getPropertyTypes = propertyTypeService.getAll;
+export const addPropertyType = propertyTypeService.add;
+export const updatePropertyType = propertyTypeService.update;
+export const deletePropertyType = propertyTypeService.remove;
