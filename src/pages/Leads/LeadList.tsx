@@ -33,14 +33,14 @@ export function LeadList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text">Leads</h1>
           <p className="text-sm text-text-secondary">{filteredLeads.length} total leads</p>
         </div>
-        <Link to="/leads/new" className="btn-primary">
+        <Link to="/leads/new" className="btn-primary shrink-0">
           <Plus className="h-4 w-4" />
-          New Lead
+          <span>New Lead</span>
         </Link>
       </div>
 
