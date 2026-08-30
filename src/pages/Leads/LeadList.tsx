@@ -54,19 +54,19 @@ export function LeadList() {
       </div>
 
       <div className="card p-4">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-3">
           <input
             type="text"
-            placeholder="Search name, code, phone, location..."
+            placeholder="Search..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="input-field flex-1 min-w-[200px]"
+            className="input-field flex-1 min-w-0"
           />
-          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field w-auto min-w-[160px]">
+          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field w-auto">
             <option value="">All Status</option>
             {LEAD_STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
-          <select value={propertyFilter} onChange={(e) => { setPropertyFilter(e.target.value); setPage(1); }} className="input-field w-auto min-w-[160px]">
+          <select value={propertyFilter} onChange={(e) => { setPropertyFilter(e.target.value); setPage(1); }} className="input-field w-auto">
             <option value="">All Property Types</option>
             {PROPERTY_TYPE_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>

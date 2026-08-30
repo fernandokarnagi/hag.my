@@ -40,12 +40,12 @@ export function Reports() {
       </div>
 
       <div className="card p-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field w-auto min-w-[160px]">
+        <div className="flex items-center gap-3">
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field w-auto">
             <option value="">All Status</option>
             {LEAD_STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
-          <select value={salesFilter} onChange={(e) => setSalesFilter(e.target.value)} className="input-field w-auto min-w-[160px]">
+          <select value={salesFilter} onChange={(e) => setSalesFilter(e.target.value)} className="input-field w-auto">
             <option value="">All Sales Executives</option>
             {salesExecs.map((s) => (<option key={s} value={s}>{s}</option>))}
           </select>
