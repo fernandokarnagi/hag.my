@@ -114,7 +114,7 @@ export function DailyUpdate() {
                       <td className="sticky left-[100px] z-10 bg-white px-3 py-2.5 text-xs border-r border-border">{lead.clientName}</td>
                       <td className="px-3 py-2.5 text-xs text-text-secondary">{lead.salesExecutive || '-'}</td>
                       {PIPELINE_STAGES.map((stage, i) => {
-                        const isDone = i < currentStageIndex;
+                        const isDone = i <= currentStageIndex;
                         const isEdited = edits[lead.id]?.status === stage;
                         return (
                           <td key={stage} className="px-1 py-2.5 text-center">
