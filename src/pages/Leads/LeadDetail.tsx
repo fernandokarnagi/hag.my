@@ -22,6 +22,7 @@ export function LeadDetail() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [selectedStages, setSelectedStages] = useState<Set<string>>(new Set());
   const [hasStageChanges, setHasStageChanges] = useState(false);
+  const [commentText, setCommentText] = useState('');
   const [expandedPanels, setExpandedPanels] = useState<Record<string, boolean>>({
     contact: true,
     property: true,
@@ -34,10 +35,12 @@ export function LeadDetail() {
 
   const canEdit = hasPermission(userProfile?.role, 'canEditLead');
   const canDelete = hasPermission(userProfile?.role, 'canDeleteLead');
+  const canAddComment = hasPermission(userProfile?.role, 'canAddComment');
 
   useEffect(() => {
     if (lead) {
       setSelectedStages(new Set(lead.completedStages || []));
+      setCommentText(lead.remarks || '');
     }
   }, [lead]);
 
@@ -89,6 +92,18 @@ export function LeadDetail() {
     });
     setHasStageChanges(false);
     toast('Stages updated', 'success');
+  }
+
+  async function handleSaveComment() {
+    if (!lead || !userProfile) return;
+    await updateLead.mutateAsync({
+      id: lead.id,
+      data: { remarks: commentText },
+      userId: userProfile.uid,
+      userName: userProfile.displayName,
+      oldData: { remarks: lead.remarks },
+    });
+    toast('Comment saved', 'success');
   }
 
   async function handleDelete() {
@@ -238,7 +253,22 @@ export function LeadDetail() {
 
       {/* Remarks */}
       <CollapsiblePanel title="Remarks" icon={<MessageSquare className="h-4 w-4" />} expanded={expandedPanels.remarks} onToggle={() => togglePanel('remarks')}>
-        {lead.remarks ? (
+        {canAddComment ? (
+          <div className="space-y-3">
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              className="input-field resize-none"
+              rows={3}
+              placeholder="Add a comment or remark..."
+            />
+            {commentText !== (lead.remarks || '') && (
+              <button onClick={handleSaveComment} disabled={updateLead.isPending} className="btn btn-primary btn-md">
+                <Save className="h-4 w-4" /> {updateLead.isPending ? 'Saving...' : 'Save Comment'}
+              </button>
+            )}
+          </div>
+        ) : lead.remarks ? (
           <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">{lead.remarks}</p>
         ) : (
           <p className="text-sm text-text-muted italic">No remarks</p>

@@ -11,10 +11,11 @@ export const ROLE_PERMISSIONS = {
     canViewReports: true,
     canBulkUpdate: true,
     canViewAuditLog: true,
+    canAddComment: true,
   },
   cs: {
     canCreateLead: true,
-    canEditLead: true,
+    canEditLead: false,
     canDeleteLead: false,
     canViewAllLeads: true,
     canUpdateStatus: true,
@@ -22,10 +23,11 @@ export const ROLE_PERMISSIONS = {
     canViewReports: true,
     canBulkUpdate: true,
     canViewAuditLog: true,
+    canAddComment: true,
   },
   sales: {
     canCreateLead: true,
-    canEditLead: true,
+    canEditLead: false,
     canDeleteLead: false,
     canViewAllLeads: false,
     canUpdateStatus: true,
@@ -33,6 +35,7 @@ export const ROLE_PERMISSIONS = {
     canViewReports: false,
     canBulkUpdate: false,
     canViewAuditLog: false,
+    canAddComment: true,
   },
   engineer: {
     canCreateLead: false,
@@ -44,6 +47,7 @@ export const ROLE_PERMISSIONS = {
     canViewReports: false,
     canBulkUpdate: false,
     canViewAuditLog: false,
+    canAddComment: true,
   },
 } as const;
 
