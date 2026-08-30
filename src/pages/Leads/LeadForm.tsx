@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useLead, useCreateLead, useUpdateLead, useNextCustomerCode } from '@/hooks/useLeads';
-import { useLeadStatuses, usePropertyTypes, usePhases, usePreferredSystems, useEmployees } from '@/hooks/useOptions';
+import { usePropertyTypes, usePhases, usePreferredSystems, useEmployees } from '@/hooks/useOptions';
 import { useAuthContext } from '@/components/AuthProvider';
 import { useToast } from '@/components/Toast';
 import type { LeadStatus } from '@/types';
@@ -14,7 +14,6 @@ export function LeadForm() {
   const { userProfile } = useAuthContext();
   const { data: existingLead, isLoading: leadLoading } = useLead(id);
   const { data: nextCode } = useNextCustomerCode();
-  const { data: statusOptions = [] } = useLeadStatuses();
   const { data: propertyOptions = [] } = usePropertyTypes();
   const { data: phaseOptions = [] } = usePhases();
   const { data: systemOptions = [] } = usePreferredSystems();
@@ -91,7 +90,6 @@ export function LeadForm() {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           <Field label="Client Name" required><input type="text" value={form.clientName} onChange={(e) => updateField('clientName', e.target.value)} className="input-field" required /></Field>
           <Field label="Contact Details" required><input type="text" value={form.contactDetails} onChange={(e) => updateField('contactDetails', e.target.value)} className="input-field" required /></Field>
-          <Field label="Status"><select value={form.status} onChange={(e) => updateField('status', e.target.value)} className="input-field">{statusOptions.filter(s => s.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
           <Field label="Location"><input type="text" value={form.location} onChange={(e) => updateField('location', e.target.value)} className="input-field" placeholder="e.g. Kota Kinabalu" /></Field>
           <Field label="GPS Pin"><input type="text" value={form.gpsPin} onChange={(e) => updateField('gpsPin', e.target.value)} className="input-field" placeholder="lat,long" /></Field>
           <Field label="Property Type"><select value={form.propertyType} onChange={(e) => updateField('propertyType', e.target.value)} className="input-field"><option value="">Select...</option>{propertyOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
