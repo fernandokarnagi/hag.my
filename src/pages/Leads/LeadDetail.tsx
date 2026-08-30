@@ -89,7 +89,7 @@ export function LeadDetail() {
       data: { status: newStatus, completedStages: Array.from(selectedStages) },
       userId: userProfile.uid,
       userName: userProfile.displayName,
-      oldData: { status: lead.status, completedStages: lead.completedStages },
+      oldData: { status: lead.status, completedStages: lead.completedStages, customerCode: lead.customerCode },
     });
     setHasStageChanges(false);
     toast('Stages updated', 'success');
@@ -110,7 +110,7 @@ export function LeadDetail() {
       data: { comments: [...comments, newCommentObj] },
       userId: userProfile.uid,
       userName: userProfile.displayName,
-      oldData: { comments: lead.comments },
+      oldData: { comments: lead.comments, customerCode: lead.customerCode },
     });
     setNewComment('');
     toast('Comment added', 'success');
@@ -126,7 +126,7 @@ export function LeadDetail() {
       data: { comments },
       userId: userProfile.uid,
       userName: userProfile.displayName,
-      oldData: { comments: lead.comments },
+      oldData: { comments: lead.comments, customerCode: lead.customerCode },
     });
     setEditingCommentId(null);
     setEditingCommentText('');
