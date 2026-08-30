@@ -272,12 +272,12 @@ input:disabled, select:disabled, textarea:disabled {
   padding: 10px 14px;
   font-size: 14px;
   font-weight: 500;
-  color: #94A3B8;
+  color: #E0E0E0;
   transition: all 0.15s;
 }
 
 .sidebar-link:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   color: #FFFFFF;
 }
 
@@ -289,8 +289,8 @@ input:disabled, select:disabled, textarea:disabled {
   padding: 10px 14px;
   font-size: 14px;
   font-weight: 500;
-  background: rgba(91, 141, 239, 0.2);
-  color: #85C1E9;
+  background: rgba(91, 141, 239, 0.25);
+  color: #FFFFFF;
 }
 
 /* Stat Card */
