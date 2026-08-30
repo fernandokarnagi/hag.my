@@ -161,21 +161,14 @@ export function LeadDetail() {
       <div className="card p-6">
         <div className="flex flex-wrap items-center gap-4">
           <div>
-            <label className="mb-1.5 block text-xs font-medium uppercase text-text-muted">Current Status</label>
+            <label className="mb-1.5 block text-xs font-medium uppercase text-text-muted">Furthest Stage</label>
             <div className="flex items-center gap-3">
-              <span className="badge-info text-sm">{LEAD_STATUS_OPTIONS.find((o) => o.value === lead.status)?.label}</span>
-              {canEdit && (
-                <select
-                  value={lead.status}
-                  onChange={(e) => handleStatusChange(e.target.value as LeadStatus)}
-                  disabled={updateLead.isPending}
-                  className="input-field w-auto"
-                >
-                  {LEAD_STATUS_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              )}
+              <span className="badge-success text-sm">
+                {LEAD_STATUS_OPTIONS.find((o) => o.value === lead.status)?.label || lead.status}
+              </span>
+              <span className="text-xs text-text-muted">
+                ({selectedStages.size} of {PIPELINE_STAGES.length} stages completed)
+              </span>
             </div>
           </div>
         </div>
