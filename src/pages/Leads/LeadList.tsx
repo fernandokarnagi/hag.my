@@ -60,7 +60,7 @@ export function LeadList() {
             placeholder="Search..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="input-field flex-1 min-w-0"
+            className="input-field w-[75%]"
           />
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field w-auto">
             <option value="">All Status</option>

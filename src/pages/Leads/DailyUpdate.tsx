@@ -72,7 +72,7 @@ export function DailyUpdate() {
 
       <div className="card p-4">
         <div className="flex items-center gap-3">
-          <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field flex-1 min-w-0" />
+          <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field w-[75%]" />
           <select value={salesFilter} onChange={(e) => setSalesFilter(e.target.value)} className="input-field w-auto">
             <option value="">All Sales Executives</option>
             {salesExecs.map((s) => (<option key={s} value={s}>{s}</option>))}
