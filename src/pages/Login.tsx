@@ -1,28 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { loginUser, resetPassword } from '@/services/authService';
+import { useAuthContext } from '@/components/AuthProvider';
 import { Zap, Eye, EyeOff } from 'lucide-react';
 
 export function Login() {
+  const { firebaseUser, loading } = useAuthContext();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
+  useEffect(() => {
+    if (!loading && firebaseUser) {
+      navigate('/', { replace: true });
+    }
+  }, [firebaseUser, loading, navigate]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    setSubmitting(true);
     try {
       await loginUser(email, password);
     } catch (err: any) {
       setError(err.message || 'Failed to login');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   }
 
@@ -164,8 +174,8 @@ export function Login() {
               </div>
             )}
 
-            <button type="submit" disabled={loading} className="btn btn-primary btn-md w-full">
-              {loading ? (
+            <button type="submit" disabled={submitting} className="btn btn-primary btn-md w-full">
+              {submitting ? (
                 <span className="flex items-center gap-2">
                   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
