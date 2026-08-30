@@ -134,8 +134,9 @@ export function DailyUpdate() {
                   return (
                     <th key={stage} className="px-1 py-3 text-center text-[10px] font-medium uppercase text-text-muted group relative" style={{ minWidth: '40px', writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
                       {label?.slice(0, 10)}
-                      <div className="hidden group-hover:block absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap z-50 pointer-events-none">
+                      <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap z-50 pointer-events-none">
                         {label}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
                       </div>
                     </th>
                   );
