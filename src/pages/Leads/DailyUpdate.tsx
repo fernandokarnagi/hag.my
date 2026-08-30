@@ -4,7 +4,7 @@ import { useAuthContext } from '@/components/AuthProvider';
 import { useToast } from '@/components/Toast';
 import { PIPELINE_STAGES, LEAD_STATUS_OPTIONS } from '@/types';
 import type { LeadStatus } from '@/types';
-import { Save, RotateCcw, ClipboardList } from 'lucide-react';
+import { Save, RotateCcw, ClipboardList, Info } from 'lucide-react';
 
 export function DailyUpdate() {
   const { toast } = useToast();
@@ -14,6 +14,7 @@ export function DailyUpdate() {
   const [dotOverrides, setDotOverrides] = useState<Record<string, Record<string, boolean>>>({});
   const [search, setSearch] = useState('');
   const [salesFilter, setSalesFilter] = useState('');
+  const [hoveredStage, setHoveredStage] = useState<string | null>(null);
 
   const filteredLeads = leads.filter((l) => {
     if (search) {
@@ -132,8 +133,19 @@ export function DailyUpdate() {
                 {PIPELINE_STAGES.map((stage) => {
                   const label = LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label || stage;
                   return (
-                    <th key={stage} className="px-1 py-3 text-center text-[10px] font-medium uppercase text-text-muted" style={{ minWidth: '40px', writingMode: 'vertical-rl', textOrientation: 'mixed' }} title={label}>
+                    <th
+                      key={stage}
+                      className="px-1 py-3 text-center text-[10px] font-medium uppercase text-text-muted cursor-help"
+                      style={{ minWidth: '40px', writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+                      onMouseEnter={() => setHoveredStage(stage)}
+                      onMouseLeave={() => setHoveredStage(null)}
+                    >
                       {label?.slice(0, 10)}
+                      {hoveredStage === stage && (
+                        <div className="fixed z-[100] px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg pointer-events-none" style={{ top: '10px', left: '50%', transform: 'translateX(-50%)' }}>
+                          {label}
+                        </div>
+                      )}
                     </th>
                   );
                 })}
