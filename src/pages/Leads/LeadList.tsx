@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLeads } from '@/hooks/useLeads';
+import { useLeadStatuses, usePropertyTypes } from '@/hooks/useOptions';
 import { useAuthContext } from '@/components/AuthProvider';
-import { LEAD_STATUS_OPTIONS, PROPERTY_TYPE_OPTIONS } from '@/types';
 import type { LeadStatus } from '@/types';
 import { Plus, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { hasPermission } from '@/lib/permissions';
@@ -15,6 +15,9 @@ export function LeadList() {
   const [statusFilter, setStatusFilter] = useState('');
   const [propertyFilter, setPropertyFilter] = useState('');
   const [page, setPage] = useState(1);
+
+  const { data: statusOptions = [] } = useLeadStatuses();
+  const { data: propertyOptions = [] } = usePropertyTypes();
 
   const canCreate = hasPermission(userProfile?.role, 'canCreateLead');
   const canViewAll = hasPermission(userProfile?.role, 'canViewAllLeads');
@@ -64,11 +67,11 @@ export function LeadList() {
           />
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field flex-1">
             <option value="">All Status</option>
-            {LEAD_STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+            {statusOptions.filter(s => s.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
           <select value={propertyFilter} onChange={(e) => { setPropertyFilter(e.target.value); setPage(1); }} className="input-field flex-1">
             <option value="">All Property Types</option>
-            {PROPERTY_TYPE_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+            {propertyOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
         </div>
       </div>
@@ -140,9 +143,8 @@ export function LeadList() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const label = LEAD_STATUS_OPTIONS.find((o) => o.value === status)?.label || status;
-  if (status === 'TURN_ON' || status === 'INSTALLATION_DONE') return <span className="badge-success">{label}</span>;
-  if (status === 'NO_RESPONSE') return <span className="badge-neutral">{label}</span>;
-  if (status === 'SITE_VISIT' || status === 'PROPOSAL_QUOTATION') return <span className="badge-warning">{label}</span>;
-  return <span className="badge-info">{label}</span>;
+  if (status === 'TURN_ON' || status === 'INSTALLATION_DONE') return <span className="badge-success">{status.replace(/_/g, ' ')}</span>;
+  if (status === 'NO_RESPONSE') return <span className="badge-neutral">{status.replace(/_/g, ' ')}</span>;
+  if (status === 'SITE_VISIT' || status === 'PROPOSAL_QUOTATION') return <span className="badge-warning">{status.replace(/_/g, ' ')}</span>;
+  return <span className="badge-info">{status.replace(/_/g, ' ')}</span>;
 }

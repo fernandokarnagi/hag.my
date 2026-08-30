@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useLeads } from '@/hooks/useLeads';
-import { LEAD_STATUS_OPTIONS } from '@/types';
+import { useLeadStatuses } from '@/hooks/useOptions';
 import type { LeadStatus } from '@/types';
 import { Download, TrendingUp, BarChart3, MapPin, Home } from 'lucide-react';
 
 export function Reports() {
   const [statusFilter, setStatusFilter] = useState('');
   const [salesFilter, setSalesFilter] = useState('');
+  const { data: statusOptions = [] } = useLeadStatuses();
   const { data: leads = [], isLoading } = useLeads({ status: (statusFilter as LeadStatus) || undefined, salesExecutive: salesFilter || undefined });
 
   function exportCSV() {
@@ -20,7 +21,8 @@ export function Reports() {
     URL.revokeObjectURL(url);
   }
 
-  const statusCounts = LEAD_STATUS_OPTIONS.map((opt) => ({ ...opt, count: leads.filter((l) => l.status === opt.value).length })).filter((s) => s.count > 0);
+  const statusMap = Object.fromEntries(statusOptions.map(s => [s.value, s.label]));
+  const statusCounts = statusOptions.filter(s => s.active).map((opt) => ({ ...opt, count: leads.filter((l) => l.status === opt.value).length })).filter((s) => s.count > 0);
   const salesExecs = [...new Set(leads.map((l) => l.salesExecutive).filter(Boolean))].sort();
   const locations = [...new Set(leads.map((l) => l.location).filter(Boolean))].sort();
   const propertyTypes = [...new Set(leads.map((l) => l.propertyType).filter(Boolean))].sort();
@@ -43,7 +45,7 @@ export function Reports() {
         <div className="flex items-center gap-3">
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field w-auto">
             <option value="">All Status</option>
-            {LEAD_STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+            {statusOptions.filter(s => s.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
           <select value={salesFilter} onChange={(e) => setSalesFilter(e.target.value)} className="input-field w-auto">
             <option value="">All Sales Executives</option>
