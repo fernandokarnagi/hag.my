@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '@/services/authService';
+import { loginUser, resetPassword } from '@/services/authService';
 import { Zap, Eye, EyeOff } from 'lucide-react';
 
 export function Login() {
@@ -9,6 +9,10 @@ export function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -23,6 +27,83 @@ export function Login() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setResetLoading(true);
+    try {
+      await resetPassword(resetEmail);
+      setResetSent(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send reset email');
+    } finally {
+      setResetLoading(false);
+    }
+  }
+
+  if (showForgotPassword) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface p-4">
+        <div className="relative w-full max-w-md animate-scale-in">
+          <div className="card p-8">
+            <div className="mb-6 text-center">
+              <h1 className="text-2xl font-bold text-text">Reset Password</h1>
+              <p className="mt-1 text-sm text-text-secondary">Enter your email to receive a reset link</p>
+            </div>
+
+            {resetSent ? (
+              <div className="text-center">
+                <div className="mb-4 rounded-full bg-success/10 p-4 inline-flex">
+                  <svg className="h-8 w-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="text-text-secondary">Check your email for the password reset link.</p>
+                <button
+                  onClick={() => { setShowForgotPassword(false); setResetSent(false); setResetEmail(''); }}
+                  className="btn btn-primary btn-md w-full mt-6"
+                >
+                  Back to Login
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-text-secondary">Email</label>
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    className="input-field"
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+
+                {error && (
+                  <div className="rounded-lg bg-danger/10 border border-danger/20 px-4 py-3 text-sm text-danger">
+                    {error}
+                  </div>
+                )}
+
+                <button type="submit" disabled={resetLoading} className="btn btn-primary btn-md w-full">
+                  {resetLoading ? 'Sending...' : 'Send Reset Link'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { setShowForgotPassword(false); setError(''); }}
+                  className="btn btn-ghost btn-md w-full"
+                >
+                  Back to Login
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -51,7 +132,16 @@ export function Login() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Password</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-sm font-medium text-text-secondary">Password</label>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-xs text-accent hover:text-accent-hover"
+                >
+                  Forgot password?
+                </button>
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -77,11 +167,7 @@ export function Login() {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary btn-md w-full"
-            >
+            <button type="submit" disabled={loading} className="btn btn-primary btn-md w-full">
               {loading ? (
                 <span className="flex items-center gap-2">
                   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
