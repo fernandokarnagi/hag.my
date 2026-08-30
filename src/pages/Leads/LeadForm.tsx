@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useLead, useCreateLead, useUpdateLead, useNextCustomerCode } from '@/hooks/useLeads';
-import { useLeadStatuses, usePropertyTypes } from '@/hooks/useOptions';
+import { useLeadStatuses, usePropertyTypes, usePhases, usePreferredSystems, useEmployees } from '@/hooks/useOptions';
 import { useAuthContext } from '@/components/AuthProvider';
 import { useToast } from '@/components/Toast';
-import { PHASE_OPTIONS, PREFERRED_SYSTEM_OPTIONS } from '@/types';
 import type { LeadStatus } from '@/types';
 import { ArrowLeft, Save } from 'lucide-react';
 
@@ -17,6 +16,9 @@ export function LeadForm() {
   const { data: nextCode } = useNextCustomerCode();
   const { data: statusOptions = [] } = useLeadStatuses();
   const { data: propertyOptions = [] } = usePropertyTypes();
+  const { data: phaseOptions = [] } = usePhases();
+  const { data: systemOptions = [] } = usePreferredSystems();
+  const { data: employeeOptions = [] } = useEmployees();
   const createLead = useCreateLead();
   const updateLead = useUpdateLead();
   const isEdit = Boolean(id);
@@ -93,12 +95,12 @@ export function LeadForm() {
           <Field label="Location"><input type="text" value={form.location} onChange={(e) => updateField('location', e.target.value)} className="input-field" placeholder="e.g. Kota Kinabalu" /></Field>
           <Field label="GPS Pin"><input type="text" value={form.gpsPin} onChange={(e) => updateField('gpsPin', e.target.value)} className="input-field" placeholder="lat,long" /></Field>
           <Field label="Property Type"><select value={form.propertyType} onChange={(e) => updateField('propertyType', e.target.value)} className="input-field"><option value="">Select...</option>{propertyOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
-          <Field label="Phase"><select value={form.phase} onChange={(e) => updateField('phase', e.target.value)} className="input-field"><option value="">Select...</option>{PHASE_OPTIONS.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}</select></Field>
+          <Field label="Phase"><select value={form.phase} onChange={(e) => updateField('phase', e.target.value)} className="input-field"><option value="">Select...</option>{phaseOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
           <Field label="Avg Monthly Bill (RM)"><input type="text" value={form.avgMonthlyBill} onChange={(e) => updateField('avgMonthlyBill', e.target.value)} className="input-field" placeholder="e.g. 300-500" /></Field>
-          <Field label="Preferred System"><select value={form.preferredSystem} onChange={(e) => updateField('preferredSystem', e.target.value)} className="input-field"><option value="">Select...</option>{PREFERRED_SYSTEM_OPTIONS.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}</select></Field>
-          <Field label="Sales Executive"><input type="text" value={form.salesExecutive} onChange={(e) => updateField('salesExecutive', e.target.value)} className="input-field" /></Field>
-          <Field label="Site Visit Done By"><input type="text" value={form.siteVisitDoneBy} onChange={(e) => updateField('siteVisitDoneBy', e.target.value)} className="input-field" /></Field>
-          <Field label="Proposal Prepared By"><input type="text" value={form.proposalPreparedBy} onChange={(e) => updateField('proposalPreparedBy', e.target.value)} className="input-field" /></Field>
+          <Field label="Preferred System"><select value={form.preferredSystem} onChange={(e) => updateField('preferredSystem', e.target.value)} className="input-field"><option value="">Select...</option>{systemOptions.filter(s => s.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
+          <Field label="Sales Executive"><select value={form.salesExecutive} onChange={(e) => updateField('salesExecutive', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
+          <Field label="Site Visit Done By"><select value={form.siteVisitDoneBy} onChange={(e) => updateField('siteVisitDoneBy', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
+          <Field label="Proposal Prepared By"><select value={form.proposalPreparedBy} onChange={(e) => updateField('proposalPreparedBy', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
           <Field label="Proposed Capacity (kWp)"><input type="text" value={form.proposedCapacity} onChange={(e) => updateField('proposedCapacity', e.target.value)} className="input-field" /></Field>
           <Field label="Project Value (RM)"><input type="text" value={form.projectValue} onChange={(e) => updateField('projectValue', e.target.value)} className="input-field" /></Field>
           <Field label="Customer Folder"><input type="text" value={form.customerFolder} onChange={(e) => updateField('customerFolder', e.target.value)} className="input-field" /></Field>
