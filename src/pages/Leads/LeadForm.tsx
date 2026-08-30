@@ -104,7 +104,7 @@ export function LeadForm() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Field label="Property Type"><select value={form.propertyType} onChange={(e) => updateField('propertyType', e.target.value)} className="input-field"><option value="">Select...</option>{propertyOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
             <Field label="Phase"><select value={form.phase} onChange={(e) => updateField('phase', e.target.value)} className="input-field"><option value="">Select...</option>{phaseOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
-            <Field label="Avg Monthly Bill (RM)"><input type="text" value={form.avgMonthlyBill} onChange={(e) => updateField('avgMonthlyBill', e.target.value)} className="input-field" placeholder="e.g. 300-500" /></Field>
+            <Field label="Avg Monthly Bill (RM)"><input type="number" value={form.avgMonthlyBill} onChange={(e) => updateField('avgMonthlyBill', e.target.value)} className="input-field" placeholder="e.g. 300" min="0" /></Field>
             <Field label="Preferred System"><select value={form.preferredSystem} onChange={(e) => updateField('preferredSystem', e.target.value)} className="input-field"><option value="">Select...</option>{systemOptions.filter(s => s.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
           </div>
         </div>
@@ -116,7 +116,7 @@ export function LeadForm() {
             <Field label="Sales Executive"><select value={form.salesExecutive} onChange={(e) => updateField('salesExecutive', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
             <Field label="Proposal Prepared By"><select value={form.proposalPreparedBy} onChange={(e) => updateField('proposalPreparedBy', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
             <Field label="Proposed Capacity (kWp)"><input type="text" value={form.proposedCapacity} onChange={(e) => updateField('proposedCapacity', e.target.value)} className="input-field" /></Field>
-            <Field label="Project Value (RM)"><input type="text" value={form.projectValue} onChange={(e) => updateField('projectValue', e.target.value)} className="input-field" /></Field>
+            <Field label="Project Value (RM)"><input type="number" value={form.projectValue} onChange={(e) => updateField('projectValue', e.target.value)} className="input-field" placeholder="e.g. 25000" min="0" /></Field>
           </div>
         </div>
 
