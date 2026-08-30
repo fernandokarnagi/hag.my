@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, ClipboardList, FileText, Settings, LogOut, Menu, X, Zap, User, UserCog,
+  LayoutDashboard, Users, ClipboardList, FileText, Settings, LogOut, Menu, X, Zap, User, UserCog, ListChecks, Home,
 } from 'lucide-react';
 import { logoutUser } from '@/services/authService';
 import { useAuthContext } from '@/components/AuthProvider';
@@ -15,7 +15,9 @@ const navItems = [
 ];
 
 const settingsItems = [
-  { to: '/settings', icon: UserCog, label: 'Users', page: 'settings' },
+  { to: '/settings/users', icon: UserCog, label: 'Users', page: 'settings' },
+  { to: '/settings/statuses', icon: ListChecks, label: 'Lead Statuses', page: 'settings' },
+  { to: '/settings/property-types', icon: Home, label: 'Property Types', page: 'settings' },
 ];
 
 export function Sidebar() {
