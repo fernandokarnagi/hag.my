@@ -16,6 +16,7 @@ export function Login() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   useEffect(() => {
     if (!loading && firebaseUser) {
@@ -27,14 +28,17 @@ export function Login() {
     e.preventDefault();
     setError('');
     setSubmitting(true);
+    setLoginSuccess(true);
     try {
       await loginUser(email, password);
     } catch (err: any) {
       setError(err.message || 'Failed to login');
-    } finally {
       setSubmitting(false);
+      setLoginSuccess(false);
     }
   }
+
+  const isLoading = submitting || loginSuccess;
 
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
@@ -174,8 +178,8 @@ export function Login() {
               </div>
             )}
 
-            <button type="submit" disabled={submitting} className="btn btn-primary btn-md w-full">
-              {submitting ? (
+            <button type="submit" disabled={isLoading} className="btn btn-primary btn-md w-full">
+              {isLoading ? (
                 <span className="flex items-center gap-2">
                   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
