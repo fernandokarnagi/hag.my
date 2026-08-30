@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, ClipboardList, FileText, Settings, LogOut, Menu, X, Zap, User,
+  LayoutDashboard, Users, ClipboardList, FileText, LogOut, Menu, X, Zap, User, UserCog,
 } from 'lucide-react';
 import { logoutUser } from '@/services/authService';
 import { useAuthContext } from '@/components/AuthProvider';
@@ -12,7 +12,7 @@ const navItems = [
   { to: '/leads', icon: Users, label: 'Leads', page: 'leads' },
   { to: '/daily-update', icon: ClipboardList, label: 'Daily Update', page: 'daily-update' },
   { to: '/reports', icon: FileText, label: 'Reports', page: 'reports' },
-  { to: '/settings', icon: Settings, label: 'Settings', page: 'settings' },
+  { to: '/settings', icon: UserCog, label: 'Users', page: 'settings' },
 ];
 
 export function Sidebar() {
