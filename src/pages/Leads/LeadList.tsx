@@ -15,7 +15,6 @@ export function LeadList() {
   const [statusFilter, setStatusFilter] = useState('');
   const [propertyFilter, setPropertyFilter] = useState('');
   const [page, setPage] = useState(1);
-  const [hasSearched, setHasSearched] = useState(false);
 
   const { data: statusOptions = [] } = useLeadStatuses();
   const { data: propertyOptions = [] } = usePropertyTypes();
@@ -27,7 +26,6 @@ export function LeadList() {
     status: (statusFilter as LeadStatus) || undefined,
     propertyType: propertyFilter || undefined,
     createdBy: !canViewAll ? userProfile?.uid : undefined,
-    search: hasSearched ? search : undefined,
   });
 
   const filteredLeads = search
@@ -38,23 +36,17 @@ export function LeadList() {
           l.contactDetails.includes(search) ||
           l.location.toLowerCase().includes(search.toLowerCase())
       )
-    : hasSearched ? allLeads : [];
+    : allLeads;
 
   const totalPages = Math.ceil(filteredLeads.length / PAGE_SIZE);
   const paginatedLeads = filteredLeads.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    setHasSearched(true);
-    setPage(1);
-  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text">Leads</h1>
-          <p className="text-sm text-text-secondary">{hasSearched ? `${filteredLeads.length} leads found` : 'Search to find leads'}</p>
+          <p className="text-sm text-text-secondary">{filteredLeads.length} leads</p>
         </div>
         {canCreate && (
           <Link to="/leads/new" className="btn btn-primary btn-md shrink-0">
@@ -65,44 +57,28 @@ export function LeadList() {
       </div>
 
       <div className="card p-4">
-        <form onSubmit={handleSearch} className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <div className="flex-[3]">
             <input
               type="text"
               placeholder="Search by code, name, phone, or location..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               className="input-field"
             />
           </div>
-          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); setHasSearched(true); }} className="input-field flex-1">
+          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field flex-1">
             <option value="">All Status</option>
             {statusOptions.filter(s => s.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
-          <select value={propertyFilter} onChange={(e) => { setPropertyFilter(e.target.value); setPage(1); setHasSearched(true); }} className="input-field flex-1">
+          <select value={propertyFilter} onChange={(e) => { setPropertyFilter(e.target.value); setPage(1); }} className="input-field flex-1">
             <option value="">All Property Types</option>
             {propertyOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
-          <button type="submit" className="btn btn-primary btn-md">
-            <Search className="h-4 w-4" /> Search
-          </button>
-        </form>
+        </div>
       </div>
 
-      {!hasSearched ? (
-        <div className="card p-12">
-          <div className="flex flex-col items-center text-center">
-            <div className="mb-4 rounded-full bg-surface-light p-6">
-              <Users className="h-12 w-12 text-text-muted" />
-            </div>
-            <h3 className="text-lg font-semibold text-text mb-2">Search for Leads</h3>
-            <p className="text-sm text-text-secondary max-w-md">
-              Enter a customer code, name, phone number, or location to find leads.
-              You can also filter by status or property type.
-            </p>
-          </div>
-        </div>
-      ) : isLoading ? (
+      {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-14 skeleton" />)}
         </div>
