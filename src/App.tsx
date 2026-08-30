@@ -8,7 +8,6 @@ import { Dashboard } from '@/pages/Dashboard';
 import { LeadList } from '@/pages/Leads/LeadList';
 import { LeadDetail } from '@/pages/Leads/LeadDetail';
 import { LeadForm } from '@/pages/Leads/LeadForm';
-import { DailyUpdate } from '@/pages/Leads/DailyUpdate';
 import { Reports } from '@/pages/Reports/Reports';
 import { Settings } from '@/pages/Settings/Settings';
 import { LeadStatuses } from '@/pages/Settings/LeadStatuses';
@@ -51,7 +50,6 @@ function AppRoutes() {
       <Route path="/leads/new" element={<ProtectedRoute><LeadForm /></ProtectedRoute>} />
       <Route path="/leads/:id" element={<ProtectedRoute><LeadDetail /></ProtectedRoute>} />
       <Route path="/leads/:id/edit" element={<ProtectedRoute><LeadForm /></ProtectedRoute>} />
-      <Route path="/daily-update" element={<ProtectedRoute><DailyUpdate /></ProtectedRoute>} />
       <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="/settings/users" element={<ProtectedRoute><Settings /></ProtectedRoute>} />

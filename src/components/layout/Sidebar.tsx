@@ -10,7 +10,6 @@ import { canAccessPage } from '@/lib/permissions';
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard', page: 'dashboard' },
   { to: '/leads', icon: Users, label: 'Leads', page: 'leads' },
-  { to: '/daily-update', icon: ClipboardList, label: 'Daily Update', page: 'daily-update' },
   { to: '/reports', icon: FileText, label: 'Reports', page: 'reports' },
 ];
 
