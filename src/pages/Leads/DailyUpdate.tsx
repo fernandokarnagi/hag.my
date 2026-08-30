@@ -24,12 +24,11 @@ export function DailyUpdate() {
     return true;
   });
 
-  function isDotDone(leadId: string, stage: string, leadStatus: string): boolean {
-    if (dotStates[leadId] && dotStates[leadId][stage] !== undefined) {
+  function isDotDone(leadId: string, stage: string): boolean {
+    if (dotStates[leadId] && stage in dotStates[leadId]) {
       return dotStates[leadId][stage];
     }
-    const idx = PIPELINE_STAGES.indexOf(leadStatus as LeadStatus);
-    return idx >= 0 && PIPELINE_STAGES.indexOf(stage as LeadStatus) <= idx;
+    return false;
   }
 
   function handleDotClick(leadId: string, stage: string) {
@@ -37,7 +36,7 @@ export function DailyUpdate() {
       ...prev,
       [leadId]: {
         ...prev[leadId],
-        [stage]: !isDotDone(leadId, stage, ''),
+        [stage]: !isDotDone(leadId, stage),
       },
     }));
   }
@@ -60,7 +59,7 @@ export function DailyUpdate() {
       if (newStatus === lead.status) return null;
       return {
         id: leadId,
-        data: { status: newStatus },
+        data: { status: newStatus, completedStages: Object.keys(stages).filter((s) => stages[s]) },
         userId: userProfile.uid,
         userName: userProfile.displayName,
         oldData: { status: lead.status, customerCode: lead.customerCode },
@@ -81,7 +80,10 @@ export function DailyUpdate() {
     }
   }
 
-  const hasChanges = Object.keys(dotStates).length > 0;
+  function hasChanges() {
+    return Object.keys(dotStates).length > 0;
+  }
+
   const salesExecs = [...new Set(leads.map((l) => l.salesExecutive).filter(Boolean))].sort();
 
   if (isLoading) return <div className="space-y-4">{[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-12 skeleton" />)}</div>;
@@ -94,7 +96,7 @@ export function DailyUpdate() {
           <p className="text-sm text-text-secondary">Click dots to toggle — each is independent</p>
         </div>
         <div className="flex gap-2">
-          {hasChanges && (
+          {hasChanges() && (
             <>
               <button onClick={() => setDotStates({})} className="btn btn-secondary btn-md"><RotateCcw className="h-4 w-4" /> Reset</button>
               <button onClick={handleSave} disabled={updateLead.isPending} className="btn btn-primary btn-md"><Save className="h-4 w-4" /> {updateLead.isPending ? 'Saving...' : 'Save'}</button>
@@ -145,16 +147,13 @@ export function DailyUpdate() {
                     <td className="sticky left-[100px] z-10 bg-white px-3 py-2.5 text-xs border-r border-border">{lead.clientName}</td>
                     <td className="px-3 py-2.5 text-xs text-text-secondary">{lead.salesExecutive || '-'}</td>
                     {PIPELINE_STAGES.map((stage) => {
-                      const done = isDotDone(lead.id, stage, lead.status);
-                      const edited = dotStates[lead.id] && dotStates[lead.id][stage] !== undefined;
+                      const done = isDotDone(lead.id, stage);
                       return (
                         <td key={stage} className="px-1 py-2.5 text-center">
                           <button
                             onClick={() => handleDotClick(lead.id, stage)}
                             className={`h-5 w-5 rounded-full border-2 transition-all duration-150 ${
-                              edited
-                                ? (done ? 'border-accent bg-accent' : 'border-danger bg-danger/30')
-                                : done
+                              done
                                 ? 'border-success bg-success'
                                 : 'border-border hover:border-text-muted hover:scale-110'
                             }`}
@@ -172,10 +171,8 @@ export function DailyUpdate() {
       </div>
 
       <div className="flex items-center gap-6 text-xs text-text-muted">
-        <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-success" /> Done</span>
-        <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-accent" /> Added</span>
-        <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-danger/50" /> Removed</span>
-        <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2 border-border" /> Pending</span>
+        <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-success" /> Selected</span>
+        <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2 border-border" /> Not selected</span>
       </div>
     </div>
   );
