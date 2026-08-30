@@ -66,9 +66,9 @@ export function Sidebar() {
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4">
-          <div className="mb-3 rounded-lg bg-surface-light px-3 py-2">
-            <p className="text-sm font-medium text-text truncate">{userProfile?.displayName}</p>
-            <p className="text-xs text-text-muted capitalize">{userProfile?.role}</p>
+          <div className="mb-3 px-1">
+            <p className="text-sm font-medium text-text truncate">{userProfile?.displayName || 'User'}</p>
+            <p className="text-xs text-text-muted capitalize">{userProfile?.role || 'Loading...'}</p>
           </div>
           <nav className="space-y-1">
             <NavLink
