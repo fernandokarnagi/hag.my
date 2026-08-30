@@ -67,7 +67,7 @@ export function canAccessPage(role: UserRole | undefined, page: string): boolean
     case 'reports':
       return hasPermission(role, 'canViewReports');
     case 'settings':
-      return hasPermission(role, 'canManageUsers');
+      return true;
     default:
       return false;
   }
