@@ -55,7 +55,7 @@ export function hasPermission(role: UserRole | undefined, permission: Permission
 }
 
 export function canAccessPage(role: UserRole | undefined, page: string): boolean {
-  if (!role) return false;
+  if (!role) return true;
 
   switch (page) {
     case 'dashboard':
