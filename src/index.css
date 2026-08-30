@@ -1,25 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #1E3A5F;
-  --color-primary-light: #2D5A8E;
-  --color-accent: #3B82F6;
-  --color-accent-hover: #2563EB;
-  --color-surface: #F0F4F8;
-  --color-surface-light: #E8EFF5;
-  --color-surface-lighter: #D1DFE9;
+  --color-primary: #3B5998;
+  --color-primary-light: #5B79B8;
+  --color-accent: #5B8DEF;
+  --color-accent-hover: #4A7DE0;
+  --color-surface: #F5F7FA;
+  --color-surface-light: #EBF0F5;
+  --color-surface-lighter: #D8E2EC;
   --color-card: #FFFFFF;
-  --color-card-hover: #F8FAFC;
-  --color-border: #CBD5E1;
-  --color-border-light: #E2E8F0;
-  --color-text: #1E293B;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94A3B8;
-  --color-danger: #EF4444;
-  --color-danger-hover: #DC2626;
-  --color-warning: #F59E0B;
-  --color-info: #3B82F6;
-  --color-success: #10B981;
+  --color-card-hover: #FAFBFC;
+  --color-border: #D1D9E6;
+  --color-border-light: #E4EAF0;
+  --color-text: #2C3E50;
+  --color-text-secondary: #5D6D7E;
+  --color-text-muted: #95A5B6;
+  --color-danger: #E74C3C;
+  --color-danger-hover: #C0392B;
+  --color-warning: #F39C12;
+  --color-info: #5DADE2;
+  --color-success: #27AE60;
+  --color-pink: #E91E63;
+  --color-pink-light: #FCE4EC;
+  --color-blue-light: #E3F2FD;
+  --color-green-light: #E8F5E9;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
@@ -57,7 +61,7 @@ input::placeholder, select::placeholder, textarea::placeholder {
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.15);
 }
 
 input:disabled, select:disabled, textarea:disabled {
@@ -109,30 +113,30 @@ input:disabled, select:disabled, textarea:disabled {
 
 /* Primary Button (Blue) */
 .btn-primary {
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  background: linear-gradient(135deg, #5B8DEF 0%, #4A7DE0 100%);
   color: #FFFFFF;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  background: linear-gradient(135deg, #4A7DE0 0%, #3A6DD0 100%);
 }
 
 .btn-primary:focus {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.3);
 }
 
 /* Secondary Button (Gray) */
 .btn-secondary {
-  background: linear-gradient(135deg, #64748B 0%, #475569 100%);
+  background: linear-gradient(135deg, #7F8C9B 0%, #6C7A89 100%);
   color: #FFFFFF;
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  background: linear-gradient(135deg, #6C7A89 0%, #5A6872 100%);
 }
 
 .btn-secondary:focus {
-  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.3);
+  box-shadow: 0 0 0 3px rgba(127, 140, 155, 0.3);
 }
 
 /* Danger Button (Red) */
@@ -216,23 +220,28 @@ input:disabled, select:disabled, textarea:disabled {
 }
 
 .badge-success {
-  background: rgba(16, 185, 129, 0.15);
-  color: #059669;
+  background: rgba(39, 174, 96, 0.15);
+  color: #1E8449;
 }
 
 .badge-warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #D97706;
+  background: rgba(243, 156, 18, 0.15);
+  color: #D68910;
 }
 
 .badge-danger {
-  background: rgba(239, 68, 68, 0.15);
-  color: #DC2626;
+  background: rgba(231, 76, 60, 0.15);
+  color: #C0392B;
 }
 
 .badge-info {
-  background: rgba(59, 130, 246, 0.15);
-  color: #2563EB;
+  background: rgba(91, 141, 239, 0.15);
+  color: #2E86C1;
+}
+
+.badge-pink {
+  background: rgba(233, 30, 99, 0.15);
+  color: #C2185B;
 }
 
 .badge-neutral {
@@ -248,8 +257,8 @@ input:disabled, select:disabled, textarea:disabled {
   z-index: 40;
   height: 100vh;
   width: 16rem;
-  background: linear-gradient(180deg, #1E3A5F 0%, #0F172A 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #3B5998 0%, #2C3E50 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -280,8 +289,8 @@ input:disabled, select:disabled, textarea:disabled {
   padding: 10px 14px;
   font-size: 14px;
   font-weight: 500;
-  background: rgba(59, 130, 246, 0.2);
-  color: #60A5FA;
+  background: rgba(91, 141, 239, 0.2);
+  color: #85C1E9;
 }
 
 /* Stat Card */
@@ -337,11 +346,11 @@ input:disabled, select:disabled, textarea:disabled {
 
 /* Glow Effects */
 .glow-accent {
-  box-shadow: 0 0 16px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 16px rgba(91, 141, 239, 0.25);
 }
 
 .glow-danger {
-  box-shadow: 0 0 16px rgba(239, 68, 68, 0.25);
+  box-shadow: 0 0 16px rgba(231, 76, 60, 0.25);
 }
 
 /* Animations */
