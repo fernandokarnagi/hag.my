@@ -86,27 +86,56 @@ export function LeadForm() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="card p-6">
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          <Field label="Client Name" required><input type="text" value={form.clientName} onChange={(e) => updateField('clientName', e.target.value)} className="input-field" required /></Field>
-          <Field label="Contact Details" required><input type="text" value={form.contactDetails} onChange={(e) => updateField('contactDetails', e.target.value)} className="input-field" required /></Field>
-          <Field label="Location"><input type="text" value={form.location} onChange={(e) => updateField('location', e.target.value)} className="input-field" placeholder="e.g. Kota Kinabalu" /></Field>
-          <Field label="GPS Pin"><input type="text" value={form.gpsPin} onChange={(e) => updateField('gpsPin', e.target.value)} className="input-field" placeholder="lat,long" /></Field>
-          <Field label="Property Type"><select value={form.propertyType} onChange={(e) => updateField('propertyType', e.target.value)} className="input-field"><option value="">Select...</option>{propertyOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
-          <Field label="Phase"><select value={form.phase} onChange={(e) => updateField('phase', e.target.value)} className="input-field"><option value="">Select...</option>{phaseOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
-          <Field label="Avg Monthly Bill (RM)"><input type="text" value={form.avgMonthlyBill} onChange={(e) => updateField('avgMonthlyBill', e.target.value)} className="input-field" placeholder="e.g. 300-500" /></Field>
-          <Field label="Preferred System"><select value={form.preferredSystem} onChange={(e) => updateField('preferredSystem', e.target.value)} className="input-field"><option value="">Select...</option>{systemOptions.filter(s => s.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
-          <Field label="Sales Executive"><select value={form.salesExecutive} onChange={(e) => updateField('salesExecutive', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
-          <Field label="Site Visit Done By"><select value={form.siteVisitDoneBy} onChange={(e) => updateField('siteVisitDoneBy', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
-          <Field label="Proposal Prepared By"><select value={form.proposalPreparedBy} onChange={(e) => updateField('proposalPreparedBy', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
-          <Field label="Proposed Capacity (kWp)"><input type="text" value={form.proposedCapacity} onChange={(e) => updateField('proposedCapacity', e.target.value)} className="input-field" /></Field>
-          <Field label="Project Value (RM)"><input type="text" value={form.projectValue} onChange={(e) => updateField('projectValue', e.target.value)} className="input-field" /></Field>
-          <Field label="Customer Folder"><input type="text" value={form.customerFolder} onChange={(e) => updateField('customerFolder', e.target.value)} className="input-field" /></Field>
-          <div className="md:col-span-2 lg:col-span-3">
-            <Field label="Remarks"><textarea value={form.remarks} onChange={(e) => updateField('remarks', e.target.value)} rows={3} className="input-field resize-none" /></Field>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Contact Information */}
+        <div className="card p-6">
+          <h3 className="mb-4 text-lg font-semibold text-text">Contact Information</h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Field label="Client Name" required><input type="text" value={form.clientName} onChange={(e) => updateField('clientName', e.target.value)} className="input-field" required /></Field>
+            <Field label="Contact Details" required><input type="text" value={form.contactDetails} onChange={(e) => updateField('contactDetails', e.target.value)} className="input-field" required /></Field>
+            <Field label="Location"><input type="text" value={form.location} onChange={(e) => updateField('location', e.target.value)} className="input-field" placeholder="e.g. Kota Kinabalu" /></Field>
+            <Field label="GPS Pin"><input type="text" value={form.gpsPin} onChange={(e) => updateField('gpsPin', e.target.value)} className="input-field" placeholder="lat,long" /></Field>
           </div>
         </div>
-        <div className="mt-6 flex items-center justify-end gap-3 border-t border-border pt-5">
+
+        {/* Property Details */}
+        <div className="card p-6">
+          <h3 className="mb-4 text-lg font-semibold text-text">Property Details</h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Field label="Property Type"><select value={form.propertyType} onChange={(e) => updateField('propertyType', e.target.value)} className="input-field"><option value="">Select...</option>{propertyOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
+            <Field label="Phase"><select value={form.phase} onChange={(e) => updateField('phase', e.target.value)} className="input-field"><option value="">Select...</option>{phaseOptions.filter(p => p.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
+            <Field label="Avg Monthly Bill (RM)"><input type="text" value={form.avgMonthlyBill} onChange={(e) => updateField('avgMonthlyBill', e.target.value)} className="input-field" placeholder="e.g. 300-500" /></Field>
+            <Field label="Preferred System"><select value={form.preferredSystem} onChange={(e) => updateField('preferredSystem', e.target.value)} className="input-field"><option value="">Select...</option>{systemOptions.filter(s => s.active).map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></Field>
+          </div>
+        </div>
+
+        {/* Project Details */}
+        <div className="card p-6">
+          <h3 className="mb-4 text-lg font-semibold text-text">Project Details</h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Field label="Sales Executive"><select value={form.salesExecutive} onChange={(e) => updateField('salesExecutive', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
+            <Field label="Proposal Prepared By"><select value={form.proposalPreparedBy} onChange={(e) => updateField('proposalPreparedBy', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
+            <Field label="Proposed Capacity (kWp)"><input type="text" value={form.proposedCapacity} onChange={(e) => updateField('proposedCapacity', e.target.value)} className="input-field" /></Field>
+            <Field label="Project Value (RM)"><input type="text" value={form.projectValue} onChange={(e) => updateField('projectValue', e.target.value)} className="input-field" /></Field>
+          </div>
+        </div>
+
+        {/* Visit Information */}
+        <div className="card p-6">
+          <h3 className="mb-4 text-lg font-semibold text-text">Visit Information</h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Field label="Site Visit Done By"><select value={form.siteVisitDoneBy} onChange={(e) => updateField('siteVisitDoneBy', e.target.value)} className="input-field"><option value="">Select...</option>{employeeOptions.filter(e => e.active).map((emp) => (<option key={emp.id} value={emp.name}>{emp.name}</option>))}</select></Field>
+            <Field label="Customer Folder"><input type="text" value={form.customerFolder} onChange={(e) => updateField('customerFolder', e.target.value)} className="input-field" /></Field>
+          </div>
+        </div>
+
+        {/* Remarks */}
+        <div className="card p-6">
+          <h3 className="mb-4 text-lg font-semibold text-text">Remarks</h3>
+          <Field label=""><textarea value={form.remarks} onChange={(e) => updateField('remarks', e.target.value)} rows={3} className="input-field resize-none" placeholder="Add any additional notes..." /></Field>
+        </div>
+
+        <div className="flex justify-end gap-3">
           <Link to="/leads" className="btn btn-secondary btn-md">Cancel</Link>
           <button type="submit" disabled={createLead.isPending || updateLead.isPending} className="btn btn-primary btn-md">
             <Save className="h-4 w-4" />
