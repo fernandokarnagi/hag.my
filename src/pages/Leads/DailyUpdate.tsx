@@ -11,7 +11,7 @@ export function DailyUpdate() {
   const { userProfile } = useAuthContext();
   const { data: leads = [], isLoading } = useLeads();
   const updateLead = useUpdateLead();
-  const [edits, setEdits] = useState<Record<string, { status: LeadStatus; oldData: { status: LeadStatus; customerCode: string } }>>({});
+  const [completedStages, setCompletedStages] = useState<Record<string, Set<string>>>({});
   const [search, setSearch] = useState('');
   const [salesFilter, setSalesFilter] = useState('');
 
@@ -24,31 +24,61 @@ export function DailyUpdate() {
     return true;
   });
 
-  function handleDotClick(leadId: string, stage: LeadStatus, currentLead: { status: LeadStatus; customerCode: string }) {
-    setEdits((prev) => {
-      const current = prev[leadId];
-      if (current?.status === stage) {
-        const next = { ...prev };
-        delete next[leadId];
-        return next;
+  function getLeadCompletedStages(leadId: string, leadStatus: string): Set<string> {
+    if (completedStages[leadId]) {
+      return completedStages[leadId];
+    }
+    const idx = PIPELINE_STAGES.indexOf(leadStatus as LeadStatus);
+    if (idx >= 0) {
+      return new Set(PIPELINE_STAGES.slice(0, idx + 1));
+    }
+    return new Set();
+  }
+
+  function handleDotClick(leadId: string, stage: string) {
+    setCompletedStages((prev) => {
+      const current = new Set(prev[leadId] || []);
+      if (current.has(stage)) {
+        current.delete(stage);
+      } else {
+        current.add(stage);
       }
-      return { ...prev, [leadId]: { status: stage, oldData: currentLead } };
+      return { ...prev, [leadId]: current };
     });
+  }
+
+  function getHighestStage(stages: Set<string>): LeadStatus {
+    for (let i = PIPELINE_STAGES.length - 1; i >= 0; i--) {
+      if (stages.has(PIPELINE_STAGES[i])) {
+        return PIPELINE_STAGES[i];
+      }
+    }
+    return 'GOOGLE_FORM-INCOMING';
   }
 
   async function handleSave() {
     if (!userProfile) return;
-    const entries = Object.entries(edits);
+    const updates = Object.entries(completedStages).map(([leadId, stages]) => {
+      const lead = leads.find((l) => l.id === leadId);
+      if (!lead) return null;
+      const newStatus = getHighestStage(stages);
+      if (newStatus === lead.status) return null;
+      return { id: leadId, data: { status: newStatus }, userId: userProfile.uid, userName: userProfile.displayName, oldData: { status: lead.status, customerCode: lead.customerCode } };
+    }).filter(Boolean);
+
+    if (updates.length === 0) {
+      toast('No changes to save', 'info');
+      return;
+    }
+
     try {
-      await Promise.all(entries.map(([id, { status, oldData }]) =>
-        updateLead.mutateAsync({ id, data: { status }, userId: userProfile.uid, userName: userProfile.displayName, oldData })
-      ));
-      setEdits({});
-      toast(`${entries.length} leads updated successfully`, 'success');
+      await Promise.all(updates.map((u) => updateLead.mutateAsync(u!)));
+      setCompletedStages({});
+      toast(`${updates.length} leads updated successfully`, 'success');
     } catch { toast('Failed to save changes', 'error'); }
   }
 
-  const hasEdits = Object.keys(edits).length > 0;
+  const hasChanges = Object.keys(completedStages).length > 0;
   const salesExecs = [...new Set(leads.map((l) => l.salesExecutive).filter(Boolean))].sort();
 
   if (isLoading) return <div className="space-y-4">{[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-12 skeleton" />)}</div>;
@@ -58,13 +88,13 @@ export function DailyUpdate() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Daily Update</h1>
-          <p className="text-sm text-text-secondary">Bulk update lead statuses</p>
+          <p className="text-sm text-text-secondary">Click dots to toggle stage completion</p>
         </div>
         <div className="flex gap-2">
-          {hasEdits && (
+          {hasChanges && (
             <>
-              <button onClick={() => setEdits({})} className="btn btn-secondary btn-md"><RotateCcw className="h-4 w-4" /> Reset ({Object.keys(edits).length})</button>
-              <button onClick={handleSave} disabled={updateLead.isPending} className="btn btn-primary btn-md"><Save className="h-4 w-4" /> {updateLead.isPending ? 'Saving...' : `Save ${Object.keys(edits).length} Changes`}</button>
+              <button onClick={() => setCompletedStages({})} className="btn btn-secondary btn-md"><RotateCcw className="h-4 w-4" /> Reset</button>
+              <button onClick={handleSave} disabled={updateLead.isPending} className="btn btn-primary btn-md"><Save className="h-4 w-4" /> {updateLead.isPending ? 'Saving...' : 'Save Changes'}</button>
             </>
           )}
         </div>
@@ -107,18 +137,22 @@ export function DailyUpdate() {
                 </tr>
               ) : (
                 filteredLeads.map((lead) => {
-                  const currentStageIndex = PIPELINE_STAGES.indexOf(lead.status);
+                  const stages = getLeadCompletedStages(lead.id, lead.status);
                   return (
                     <tr key={lead.id} className="table-row">
                       <td className="sticky left-0 z-10 bg-white px-3 py-2.5 text-xs font-mono font-medium border-r border-border">{lead.customerCode}</td>
                       <td className="sticky left-[100px] z-10 bg-white px-3 py-2.5 text-xs border-r border-border">{lead.clientName}</td>
                       <td className="px-3 py-2.5 text-xs text-text-secondary">{lead.salesExecutive || '-'}</td>
-                      {PIPELINE_STAGES.map((stage, i) => {
-                        const isDone = i <= currentStageIndex;
-                        const isEdited = edits[lead.id]?.status === stage;
+                      {PIPELINE_STAGES.map((stage) => {
+                        const isDone = stages.has(stage);
+                        const isEdited = completedStages[lead.id]?.has(stage) !== undefined;
                         return (
                           <td key={stage} className="px-1 py-2.5 text-center">
-                            <button onClick={() => handleDotClick(lead.id, stage, { status: lead.status, customerCode: lead.customerCode })} className={`h-5 w-5 rounded-full border-2 transition-all duration-200 ${isEdited ? 'border-warning bg-warning' : isDone ? 'border-success bg-success' : 'border-border hover:border-text-muted hover:scale-110'}`} title={`${lead.clientName} → ${LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label}`} />
+                            <button
+                              onClick={() => handleDotClick(lead.id, stage)}
+                              className={`h-5 w-5 rounded-full border-2 transition-all duration-200 ${isEdited ? (isDone ? 'border-accent bg-accent' : 'border-warning bg-warning/50') : isDone ? 'border-success bg-success' : 'border-border hover:border-text-muted hover:scale-110'}`}
+                              title={`${lead.clientName} → ${LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label}`}
+                            />
                           </td>
                         );
                       })}
@@ -133,7 +167,8 @@ export function DailyUpdate() {
 
       <div className="flex items-center gap-6 text-xs text-text-muted">
         <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-success" /> Done</span>
-        <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-warning" /> Edited (unsaved)</span>
+        <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-accent" /> Edited (added)</span>
+        <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-warning/50" /> Edited (removed)</span>
         <span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2 border-border" /> Pending</span>
       </div>
     </div>
