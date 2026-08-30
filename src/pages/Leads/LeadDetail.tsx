@@ -4,8 +4,8 @@ import { useAuthContext } from '@/components/AuthProvider';
 import { useToast } from '@/components/Toast';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { LEAD_STATUS_OPTIONS, PIPELINE_STAGES } from '@/types';
-import type { LeadStatus } from '@/types';
-import { Edit, Trash2, ArrowLeft, MapPin, Phone, Calendar, User, History, Save, ChevronDown, ChevronUp, MessageSquare, ClipboardList } from 'lucide-react';
+import type { LeadStatus, LeadComment } from '@/types';
+import { Edit, Trash2, ArrowLeft, MapPin, Phone, Calendar, User, History, Save, ChevronDown, ChevronUp, MessageSquare, ClipboardList, Plus, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getAuditLogs, type AuditLog } from '@/services/auditService';
 import { hasPermission } from '@/lib/permissions';
@@ -22,7 +22,9 @@ export function LeadDetail() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [selectedStages, setSelectedStages] = useState<Set<string>>(new Set());
   const [hasStageChanges, setHasStageChanges] = useState(false);
-  const [commentText, setCommentText] = useState('');
+  const [newComment, setNewComment] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
   const [expandedPanels, setExpandedPanels] = useState<Record<string, boolean>>({
     contact: true,
     property: true,
@@ -40,7 +42,6 @@ export function LeadDetail() {
   useEffect(() => {
     if (lead) {
       setSelectedStages(new Set(lead.completedStages || []));
-      setCommentText(lead.remarks || '');
     }
   }, [lead]);
 
@@ -94,16 +95,42 @@ export function LeadDetail() {
     toast('Stages updated', 'success');
   }
 
-  async function handleSaveComment() {
-    if (!lead || !userProfile) return;
+  async function handleAddComment() {
+    if (!lead || !userProfile || !newComment.trim()) return;
+    const comments = lead.comments || [];
+    const newCommentObj: LeadComment = {
+      id: Date.now().toString(),
+      text: newComment.trim(),
+      createdBy: userProfile.uid,
+      createdByName: userProfile.displayName,
+      createdAt: new Date() as any,
+    };
     await updateLead.mutateAsync({
       id: lead.id,
-      data: { remarks: commentText },
+      data: { comments: [...comments, newCommentObj] },
       userId: userProfile.uid,
       userName: userProfile.displayName,
-      oldData: { remarks: lead.remarks },
+      oldData: { comments: lead.comments },
     });
-    toast('Comment saved', 'success');
+    setNewComment('');
+    toast('Comment added', 'success');
+  }
+
+  async function handleUpdateComment(commentId: string) {
+    if (!lead || !userProfile || !editingCommentText.trim()) return;
+    const comments = (lead.comments || []).map((c) =>
+      c.id === commentId ? { ...c, text: editingCommentText.trim(), updatedAt: new Date() as any } : c
+    );
+    await updateLead.mutateAsync({
+      id: lead.id,
+      data: { comments },
+      userId: userProfile.uid,
+      userName: userProfile.displayName,
+      oldData: { comments: lead.comments },
+    });
+    setEditingCommentId(null);
+    setEditingCommentText('');
+    toast('Comment updated', 'success');
   }
 
   async function handleDelete() {
@@ -136,6 +163,7 @@ export function LeadDetail() {
   }
 
   const completedCount = selectedStages.size;
+  const comments = lead.comments || [];
 
   return (
     <div className="space-y-4">
@@ -172,9 +200,9 @@ export function LeadDetail() {
               {completedCount} of {PIPELINE_STAGES.length} stages
             </span>
           </div>
-          {lead.remarks && (
+          {comments.length > 0 && (
             <div className="flex items-center gap-1 text-xs text-text-muted">
-              <MessageSquare className="h-3 w-3" /> Has comment
+              <MessageSquare className="h-3 w-3" /> {comments.length} comment{comments.length !== 1 ? 's' : ''}
             </div>
           )}
         </div>
@@ -251,28 +279,74 @@ export function LeadDetail() {
         </div>
       </CollapsiblePanel>
 
-      {/* Remarks */}
-      <CollapsiblePanel title="Remarks" icon={<MessageSquare className="h-4 w-4" />} expanded={expandedPanels.remarks} onToggle={() => togglePanel('remarks')}>
-        {canAddComment ? (
-          <div className="space-y-3">
-            <textarea
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              className="input-field resize-none"
-              rows={3}
-              placeholder="Add a comment or remark..."
-            />
-            {commentText !== (lead.remarks || '') && (
-              <button onClick={handleSaveComment} disabled={updateLead.isPending} className="btn btn-primary btn-md">
-                <Save className="h-4 w-4" /> {updateLead.isPending ? 'Saving...' : 'Save Comment'}
+      {/* Remarks / Comments */}
+      <CollapsiblePanel title={`Remarks & Comments (${comments.length})`} icon={<MessageSquare className="h-4 w-4" />} expanded={expandedPanels.remarks} onToggle={() => togglePanel('remarks')}>
+        <div className="space-y-4">
+          {/* Add new comment */}
+          {canAddComment && (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="input-field flex-1"
+                onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+              />
+              <button onClick={handleAddComment} disabled={!newComment.trim()} className="btn btn-primary btn-md">
+                <Plus className="h-4 w-4" /> Add
               </button>
-            )}
-          </div>
-        ) : lead.remarks ? (
-          <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">{lead.remarks}</p>
-        ) : (
-          <p className="text-sm text-text-muted italic">No remarks</p>
-        )}
+            </div>
+          )}
+
+          {/* Comments list */}
+          {comments.length === 0 ? (
+            <p className="text-sm text-text-muted italic">No comments yet</p>
+          ) : (
+            <div className="space-y-3">
+              {[...comments].reverse().map((comment) => (
+                <div key={comment.id} className="border border-border rounded-lg p-3">
+                  {editingCommentId === comment.id ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={editingCommentText}
+                        onChange={(e) => setEditingCommentText(e.target.value)}
+                        className="input-field flex-1"
+                        onKeyDown={(e) => e.key === 'Enter' && handleUpdateComment(comment.id)}
+                        autoFocus
+                      />
+                      <button onClick={() => handleUpdateComment(comment.id)} className="btn btn-primary btn-sm">
+                        <Save className="h-3 w-3" />
+                      </button>
+                      <button onClick={() => { setEditingCommentId(null); setEditingCommentText(''); }} className="btn btn-ghost btn-sm">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <p className="text-sm text-text">{comment.text}</p>
+                        <p className="text-xs text-text-muted mt-1">
+                          {comment.createdByName} · {comment.createdAt?.toDate?.() ? comment.createdAt.toDate().toLocaleString() : 'Just now'}
+                          {comment.updatedAt && ' · (edited)'}
+                        </p>
+                      </div>
+                      {canAddComment && comment.createdBy === userProfile?.uid && (
+                        <button
+                          onClick={() => { setEditingCommentId(comment.id); setEditingCommentText(comment.text); }}
+                          className="text-xs text-text-muted hover:text-text"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </CollapsiblePanel>
 
       {/* Change History */}

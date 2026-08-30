@@ -119,10 +119,20 @@ export interface Lead {
   gpsPin: string;
   customerFolder: string;
   remarks: string;
+  comments?: LeadComment[];
   completedStages?: string[];
   createdAt: Timestamp;
   updatedAt: Timestamp;
   createdBy: string;
+}
+
+export interface LeadComment {
+  id: string;
+  text: string;
+  createdBy: string;
+  createdByName: string;
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
 }
 
 export interface StatusUpdate {
