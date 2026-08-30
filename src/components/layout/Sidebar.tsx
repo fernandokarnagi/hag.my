@@ -101,10 +101,10 @@ export function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-border p-4 shrink-0">
+        <div className="border-t border-white/10 p-4 shrink-0">
           <div className="mb-3 px-1">
-            <p className="text-sm font-medium text-text truncate">{userProfile?.displayName || 'User'}</p>
-            <p className="text-xs text-text-muted capitalize">{userProfile?.role || 'Loading...'}</p>
+            <p className="text-sm font-medium text-white truncate">{userProfile?.displayName || 'User'}</p>
+            <p className="text-xs text-white/70 capitalize">{userProfile?.role || 'Loading...'}</p>
           </div>
           <nav className="space-y-1">
             <NavLink
@@ -115,7 +115,7 @@ export function Sidebar() {
               <User className="h-5 w-5" />
               Edit Profile
             </NavLink>
-            <button onClick={() => logoutUser()} className="sidebar-link w-full text-text-muted hover:text-danger">
+            <button onClick={() => logoutUser()} className="sidebar-link w-full text-white/70 hover:text-red-400">
               <LogOut className="h-5 w-5" />
               Sign Out
             </button>
