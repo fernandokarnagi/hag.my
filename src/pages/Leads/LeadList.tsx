@@ -60,13 +60,13 @@ export function LeadList() {
             placeholder="Search..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="input-field w-[75%]"
+            className="input-field flex-[3]"
           />
-          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field w-auto">
+          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field flex-1">
             <option value="">All Status</option>
             {LEAD_STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
-          <select value={propertyFilter} onChange={(e) => { setPropertyFilter(e.target.value); setPage(1); }} className="input-field w-auto">
+          <select value={propertyFilter} onChange={(e) => { setPropertyFilter(e.target.value); setPage(1); }} className="input-field flex-1">
             <option value="">All Property Types</option>
             {PROPERTY_TYPE_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
