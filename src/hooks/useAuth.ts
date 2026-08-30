@@ -21,7 +21,12 @@ export function useAuth(): AuthState {
   useEffect(() => {
     const unsubscribe = onAuthChange(async (user) => {
       if (user) {
-        let profile = await getUserProfile(user.uid);
+        let profile = null;
+        try {
+          profile = await getUserProfile(user.uid);
+        } catch (e) {
+          console.error('Error fetching profile:', e);
+        }
 
         if (!profile) {
           const newProfile: User = {
@@ -32,8 +37,13 @@ export function useAuth(): AuthState {
             active: true,
             createdAt: new Date() as any,
           };
-          await setDoc(doc(db, 'users', user.uid), newProfile);
-          profile = newProfile;
+          try {
+            await setDoc(doc(db, 'users', user.uid), newProfile);
+            profile = newProfile;
+          } catch (e) {
+            console.error('Error creating profile:', e);
+            profile = newProfile;
+          }
         }
 
         setState({ firebaseUser: user, userProfile: profile, loading: false });
