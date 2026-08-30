@@ -31,7 +31,7 @@ export function LeadDetail() {
     project: true,
     visit: true,
     stages: true,
-    history: false,
+    history: true,
     remarks: true,
   });
 
@@ -285,15 +285,14 @@ export function LeadDetail() {
           {/* Add new comment */}
           {canAddComment && (
             <div className="flex gap-2">
-              <input
-                type="text"
+              <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Add a comment..."
-                className="input-field flex-1"
-                onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+                className="input-field flex-1 resize-none"
+                rows={2}
               />
-              <button onClick={handleAddComment} disabled={!newComment.trim()} className="btn btn-primary btn-md">
+              <button onClick={handleAddComment} disabled={!newComment.trim()} className="btn btn-primary btn-md self-end">
                 <Plus className="h-4 w-4" /> Add
               </button>
             </div>
@@ -307,21 +306,22 @@ export function LeadDetail() {
               {[...comments].reverse().map((comment) => (
                 <div key={comment.id} className="border border-border rounded-lg p-3">
                   {editingCommentId === comment.id ? (
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
+                    <div className="space-y-2">
+                      <textarea
                         value={editingCommentText}
                         onChange={(e) => setEditingCommentText(e.target.value)}
-                        className="input-field flex-1"
-                        onKeyDown={(e) => e.key === 'Enter' && handleUpdateComment(comment.id)}
+                        className="input-field resize-none"
+                        rows={2}
                         autoFocus
                       />
-                      <button onClick={() => handleUpdateComment(comment.id)} className="btn btn-primary btn-sm">
-                        <Save className="h-3 w-3" />
-                      </button>
-                      <button onClick={() => { setEditingCommentId(null); setEditingCommentText(''); }} className="btn btn-ghost btn-sm">
-                        <X className="h-3 w-3" />
-                      </button>
+                      <div className="flex gap-2">
+                        <button onClick={() => handleUpdateComment(comment.id)} className="btn btn-primary btn-sm">
+                          <Save className="h-3 w-3" /> Save
+                        </button>
+                        <button onClick={() => { setEditingCommentId(null); setEditingCommentText(''); }} className="btn btn-ghost btn-sm">
+                          <X className="h-3 w-3" /> Cancel
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="flex items-start justify-between gap-2">
