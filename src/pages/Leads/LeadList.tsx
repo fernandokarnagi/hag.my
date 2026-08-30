@@ -82,7 +82,7 @@ export function LeadList() {
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-14 skeleton rounded-xl" />
+            <div key={i} className="h-14 skeleton" />
           ))}
         </div>
       ) : (
@@ -90,7 +90,7 @@ export function LeadList() {
           <div className="card overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-border/50 bg-surface-lighter/30">
+                <tr className="border-b border-border bg-surface-light">
                   <th className="px-4 py-3.5 text-left text-xs font-medium uppercase text-text-muted">Code</th>
                   <th className="px-4 py-3.5 text-left text-xs font-medium uppercase text-text-muted">Name</th>
                   <th className="px-4 py-3.5 text-left text-xs font-medium uppercase text-text-muted">Status</th>
@@ -105,7 +105,7 @@ export function LeadList() {
                   <tr>
                     <td colSpan={7} className="px-4 py-16 text-center">
                       <div className="flex flex-col items-center">
-                        <div className="mb-4 rounded-full bg-surface-lighter p-4">
+                        <div className="mb-4 rounded-full bg-surface-light p-4">
                           <Users className="h-8 w-8 text-text-muted" />
                         </div>
                         <p className="text-text-secondary">No leads found</p>

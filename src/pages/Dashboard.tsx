@@ -39,7 +39,7 @@ export function Dashboard() {
         <div className="h-8 w-48 skeleton" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 skeleton rounded-xl" />
+            <div key={i} className="h-28 skeleton" />
           ))}
         </div>
       </div>
@@ -105,7 +105,7 @@ export function Dashboard() {
                 </div>
                 <div className="h-2 rounded-full bg-surface-light overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-accent to-green-500 transition-all duration-500"
+                    className="h-full rounded-full bg-accent transition-all duration-500"
                     style={{ width: `${(s.count / totalLeads) * 100}%` }}
                   />
                 </div>
@@ -132,10 +132,10 @@ export function Dashboard() {
                 <Link
                   key={lead.id}
                   to={`/leads/${lead.id}`}
-                  className="group flex items-center justify-between rounded-lg border border-border p-3 transition-all duration-200 hover:border-accent/30 hover:bg-surface-light"
+                  className="group flex items-center justify-between rounded-xl border border-border p-3 transition-all duration-200 hover:border-accent/50 hover:bg-surface-light"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 text-sm font-semibold text-accent">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-sm font-semibold text-accent">
                       {lead.clientName.charAt(0)}
                     </div>
                     <div>
@@ -211,10 +211,10 @@ function StatCard({
   trend?: string;
 }) {
   const colors: Record<string, { bg: string; icon: string }> = {
-    blue: { bg: 'bg-info/10', icon: 'text-info' },
-    green: { bg: 'bg-success/10', icon: 'text-success' },
-    purple: { bg: 'bg-purple-100', icon: 'text-purple-600' },
-    amber: { bg: 'bg-warning/10', icon: 'text-warning' },
+    blue: { bg: 'bg-accent/15', icon: 'text-accent' },
+    green: { bg: 'bg-success/15', icon: 'text-success' },
+    purple: { bg: 'bg-purple-500/15', icon: 'text-purple-400' },
+    amber: { bg: 'bg-warning/15', icon: 'text-warning' },
   };
   const c = colors[color] || colors.blue;
 

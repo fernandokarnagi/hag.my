@@ -27,15 +27,10 @@ export function Login() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface p-4">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-accent/5 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-info/5 blur-3xl" />
-      </div>
-
       <div className="relative w-full max-w-md animate-scale-in">
         <div className="card p-8">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 glow-accent">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/15 glow-accent">
               <Zap className="h-7 w-7 text-accent" />
             </div>
             <h1 className="text-2xl font-bold text-text">Solar CRM</h1>
@@ -77,7 +72,7 @@ export function Login() {
             </div>
 
             {error && (
-              <div className="rounded-lg bg-danger/10 border border-danger/20 px-4 py-3 text-sm text-danger animate-slide-up">
+              <div className="rounded-xl bg-danger/15 border border-danger/30 px-4 py-3 text-sm text-danger animate-slide-up">
                 {error}
               </div>
             )}
