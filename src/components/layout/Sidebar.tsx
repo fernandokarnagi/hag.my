@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, ClipboardList, FileText, Settings, LogOut, Menu, X, Zap,
+  LayoutDashboard, Users, ClipboardList, FileText, Settings, LogOut, Menu, X, Zap, User,
 } from 'lucide-react';
 import { logoutUser } from '@/services/authService';
 import { useAuthContext } from '@/components/AuthProvider';
@@ -70,10 +70,20 @@ export function Sidebar() {
             <p className="text-sm font-medium text-text truncate">{userProfile?.displayName}</p>
             <p className="text-xs text-text-muted capitalize">{userProfile?.role}</p>
           </div>
-          <button onClick={() => logoutUser()} className="sidebar-link w-full text-text-muted hover:text-danger">
-            <LogOut className="h-5 w-5" />
-            Sign Out
-          </button>
+          <nav className="space-y-1">
+            <NavLink
+              to="/profile"
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) => isActive ? 'sidebar-link-active' : 'sidebar-link'}
+            >
+              <User className="h-5 w-5" />
+              Edit Profile
+            </NavLink>
+            <button onClick={() => logoutUser()} className="sidebar-link w-full text-text-muted hover:text-danger">
+              <LogOut className="h-5 w-5" />
+              Sign Out
+            </button>
+          </nav>
         </div>
       </aside>
     </>

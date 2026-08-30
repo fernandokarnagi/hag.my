@@ -27,3 +27,7 @@ export async function getUsersByRole(role: UserRole): Promise<User[]> {
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ uid: d.id, ...d.data() } as User));
 }
+
+export async function updateUserProfile(uid: string, data: { displayName?: string }) {
+  await updateDoc(doc(db, 'users', uid), data);
+}

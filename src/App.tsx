@@ -11,6 +11,7 @@ import { LeadForm } from '@/pages/Leads/LeadForm';
 import { DailyUpdate } from '@/pages/Leads/DailyUpdate';
 import { Reports } from '@/pages/Reports/Reports';
 import { Settings } from '@/pages/Settings/Settings';
+import { EditProfile } from '@/pages/Profile/EditProfile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +49,7 @@ function AppRoutes() {
       <Route path="/daily-update" element={<ProtectedRoute><DailyUpdate /></ProtectedRoute>} />
       <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
     </Routes>
   );
 }
