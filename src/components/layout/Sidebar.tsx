@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, ClipboardList, FileText, LogOut, Menu, X, Zap, User, UserCog,
+  LayoutDashboard, Users, ClipboardList, FileText, Settings, LogOut, Menu, X, Zap, User, UserCog, ChevronDown,
 } from 'lucide-react';
 import { logoutUser } from '@/services/authService';
 import { useAuthContext } from '@/components/AuthProvider';
@@ -12,14 +12,22 @@ const navItems = [
   { to: '/leads', icon: Users, label: 'Leads', page: 'leads' },
   { to: '/daily-update', icon: ClipboardList, label: 'Daily Update', page: 'daily-update' },
   { to: '/reports', icon: FileText, label: 'Reports', page: 'reports' },
+];
+
+const settingsItems = [
   { to: '/settings', icon: UserCog, label: 'Users', page: 'settings' },
 ];
 
 export function Sidebar() {
   const { userProfile } = useAuthContext();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const accessibleNavItems = navItems.filter((item) =>
+    canAccessPage(userProfile?.role, item.page)
+  );
+
+  const accessibleSettingsItems = settingsItems.filter((item) =>
     canAccessPage(userProfile?.role, item.page)
   );
 
@@ -63,6 +71,34 @@ export function Sidebar() {
               {item.label}
             </NavLink>
           ))}
+
+          {accessibleSettingsItems.length > 0 && (
+            <div>
+              <button
+                onClick={() => setSettingsOpen(!settingsOpen)}
+                className="sidebar-link w-full"
+              >
+                <Settings className="h-5 w-5" />
+                <span className="flex-1 text-left">Settings</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {settingsOpen && (
+                <div className="ml-4 mt-1 space-y-1">
+                  {accessibleSettingsItems.map((item) => (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setMobileOpen(false)}
+                      className={({ isActive }) => isActive ? 'sidebar-link-active' : 'sidebar-link'}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.label}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4">
