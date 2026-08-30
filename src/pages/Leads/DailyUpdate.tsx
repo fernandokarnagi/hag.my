@@ -89,8 +89,8 @@ export function DailyUpdate() {
                 <th className="sticky left-[100px] z-10 bg-surface-light px-3 py-3 text-left text-xs font-medium uppercase text-text-muted min-w-[130px]">Name</th>
                 <th className="px-3 py-3 text-left text-xs font-medium uppercase text-text-muted min-w-[90px]">Sales Exec</th>
                 {PIPELINE_STAGES.map((stage) => (
-                  <th key={stage} className="px-1 py-3 text-center text-[10px] font-medium uppercase text-text-muted" style={{ minWidth: '40px' }} title={LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label}>
-                    <div className="writing-vertical-rl mx-auto rotate-180 whitespace-nowrap">{LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label?.slice(0, 10)}</div>
+                  <th key={stage} className="px-1 py-3 text-center text-[10px] font-medium uppercase text-text-muted" style={{ minWidth: '40px', writingMode: 'vertical-rl', textOrientation: 'mixed' }} title={LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label}>
+                    {LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label?.slice(0, 10)}
                   </th>
                 ))}
               </tr>
