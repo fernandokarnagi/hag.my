@@ -42,7 +42,7 @@ export function Sidebar() {
             <Zap className="h-5 w-5 text-accent" />
           </div>
           <div>
-            <span className="text-base font-semibold text-text">Solar CRM</span>
+            <span className="text-base font-semibold text-text">HAG CRM</span>
             <p className="text-[10px] text-text-muted">Management System</p>
           </div>
           <button onClick={() => setMobileOpen(false)} className="ml-auto text-text-muted hover:text-text md:hidden">
