@@ -4,6 +4,7 @@ import { useLead, useCreateLead, useUpdateLead, useNextCustomerCode } from '@/ho
 import { usePropertyTypes, usePhases, usePreferredSystems, useEmployees } from '@/hooks/useOptions';
 import { useAuthContext } from '@/components/AuthProvider';
 import { useToast } from '@/components/Toast';
+import { MapPicker } from '@/components/MapPicker';
 import type { LeadStatus } from '@/types';
 import { ArrowLeft, Save } from 'lucide-react';
 
@@ -94,7 +95,7 @@ export function LeadForm() {
             <Field label="Client Name" required><input type="text" value={form.clientName} onChange={(e) => updateField('clientName', e.target.value)} className="input-field" required /></Field>
             <Field label="Contact Details" required><input type="text" value={form.contactDetails} onChange={(e) => updateField('contactDetails', e.target.value)} className="input-field" required /></Field>
             <Field label="Location"><input type="text" value={form.location} onChange={(e) => updateField('location', e.target.value)} className="input-field" placeholder="e.g. Kota Kinabalu" /></Field>
-            <Field label="GPS Pin"><input type="text" value={form.gpsPin} onChange={(e) => updateField('gpsPin', e.target.value)} className="input-field" placeholder="lat,long" /></Field>
+            <Field label="GPS Pin"><MapPicker value={form.gpsPin} onChange={(val) => updateField('gpsPin', val)} /></Field>
           </div>
         </div>
 
