@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { loginUser, resetPassword } from '@/services/authService';
 import { Zap, Eye, EyeOff } from 'lucide-react';
 
@@ -13,7 +12,6 @@ export function Login() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
-  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,7 +19,6 @@ export function Login() {
     setLoading(true);
     try {
       await loginUser(email, password);
-      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Failed to login');
     } finally {
