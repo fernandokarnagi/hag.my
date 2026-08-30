@@ -30,14 +30,14 @@ export function Sidebar() {
     <>
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed left-4 top-4 z-50 rounded-xl bg-surface-light p-2.5 text-text-secondary hover:text-text border border-border md:hidden transition-colors"
+        className="fixed left-4 top-4 z-50 rounded-lg bg-white p-2.5 text-text-secondary hover:text-text border border-border md:hidden transition-colors"
       >
         <Menu className="h-5 w-5" />
       </button>
 
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 md:hidden animate-fade-in"
+          className="fixed inset-0 z-40 bg-black/30 md:hidden animate-fade-in"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -48,7 +48,7 @@ export function Sidebar() {
         }`}
       >
         <div className="flex h-16 items-center gap-3 border-b border-border px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/15">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10">
             <Zap className="h-5 w-5 text-accent" />
           </div>
           <div>
@@ -81,7 +81,7 @@ export function Sidebar() {
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4">
-          <div className="mb-3 rounded-xl bg-surface-light px-3 py-2">
+          <div className="mb-3 rounded-lg bg-surface-light px-3 py-2">
             <p className="text-sm font-medium text-text truncate">{userProfile?.displayName}</p>
             <p className="text-xs text-text-muted capitalize">{userProfile?.role}</p>
           </div>

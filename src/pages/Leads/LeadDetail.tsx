@@ -33,12 +33,10 @@ export function LeadDetail() {
     return (
       <div className="space-y-6">
         <div className="h-8 w-64 skeleton" />
-        <div className="h-24 skeleton rounded-xl" />
-        <div className="h-16 skeleton rounded-xl" />
+        <div className="h-24 skeleton" />
+        <div className="h-16 skeleton" />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-48 skeleton rounded-xl" />
-          ))}
+          {[1, 2, 3, 4].map((i) => <div key={i} className="h-48 skeleton" />)}
         </div>
       </div>
     );
@@ -48,9 +46,7 @@ export function LeadDetail() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <p className="text-text-secondary">Lead not found</p>
-        <Link to="/leads" className="mt-4 text-sm text-accent hover:text-accent-hover">
-          Back to Leads
-        </Link>
+        <Link to="/leads" className="mt-4 text-sm text-accent hover:text-accent-hover">Back to Leads</Link>
       </div>
     );
   }
@@ -60,7 +56,7 @@ export function LeadDetail() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link to="/leads" className="btn-ghost p-2">
+        <Link to="/leads" className="btn btn-ghost btn-sm p-2">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
@@ -68,11 +64,11 @@ export function LeadDetail() {
           <p className="font-mono text-sm text-text-secondary">{lead.customerCode}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Link to={`/leads/${lead.id}/edit`} className="btn-secondary">
+          <Link to={`/leads/${lead.id}/edit`} className="btn btn-secondary btn-md">
             <Edit className="h-4 w-4" />
             Edit
           </Link>
-          <button onClick={() => setShowDelete(true)} className="btn-danger">
+          <button onClick={() => setShowDelete(true)} className="btn btn-outline-danger btn-md">
             <Trash2 className="h-4 w-4" />
             Delete
           </button>
@@ -106,12 +102,12 @@ export function LeadDetail() {
           {PIPELINE_STAGES.map((stage, i) => (
             <div
               key={stage}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
                 i < currentStageIndex
-                  ? 'bg-success/15 text-success border border-success/20'
+                  ? 'bg-success/10 text-success border border-success/20'
                   : i === currentStageIndex
-                  ? 'bg-accent text-surface shadow-lg shadow-accent/25'
-                  : 'bg-surface-lighter text-text-muted border border-border/50'
+                  ? 'bg-accent text-white'
+                  : 'bg-surface-light text-text-muted border border-border'
               }`}
             >
               {LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label}
@@ -172,7 +168,7 @@ function InfoCard({ title, icon: Icon, children }: { title: string; icon: React.
   return (
     <div className="card p-6">
       <div className="mb-4 flex items-center gap-2">
-        <div className="rounded-lg bg-surface-lighter p-2">
+        <div className="rounded-lg bg-surface-light p-2">
           <Icon className="h-4 w-4 text-text-muted" />
         </div>
         <h2 className="font-semibold text-text">{title}</h2>

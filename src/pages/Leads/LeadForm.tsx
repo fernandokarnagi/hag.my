@@ -3,12 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useLead, useCreateLead, useUpdateLead, useNextCustomerCode } from '@/hooks/useLeads';
 import { useAuthContext } from '@/components/AuthProvider';
 import { useToast } from '@/components/Toast';
-import {
-  LEAD_STATUS_OPTIONS,
-  PROPERTY_TYPE_OPTIONS,
-  PHASE_OPTIONS,
-  PREFERRED_SYSTEM_OPTIONS,
-} from '@/types';
+import { LEAD_STATUS_OPTIONS, PROPERTY_TYPE_OPTIONS, PHASE_OPTIONS, PREFERRED_SYSTEM_OPTIONS } from '@/types';
 import type { LeadStatus } from '@/types';
 import { ArrowLeft, Save } from 'lucide-react';
 
@@ -24,43 +19,23 @@ export function LeadForm() {
   const isEdit = Boolean(id);
 
   const [form, setForm] = useState({
-    clientName: '',
-    status: 'GOOGLE_FORM-INCOMING' as LeadStatus,
-    contactDetails: '',
-    siteVisitDoneBy: '',
-    salesExecutive: '',
-    proposalPreparedBy: '',
-    phase: '',
-    avgMonthlyBill: '',
-    preferredSystem: '',
-    propertyType: '',
-    proposedCapacity: '',
-    projectValue: '',
-    location: '',
-    gpsPin: '',
-    customerFolder: '',
-    remarks: '',
+    clientName: '', status: 'GOOGLE_FORM-INCOMING' as LeadStatus, contactDetails: '',
+    siteVisitDoneBy: '', salesExecutive: '', proposalPreparedBy: '', phase: '',
+    avgMonthlyBill: '', preferredSystem: '', propertyType: '', proposedCapacity: '',
+    projectValue: '', location: '', gpsPin: '', customerFolder: '', remarks: '',
   });
 
   useEffect(() => {
     if (existingLead) {
       setForm({
-        clientName: existingLead.clientName,
-        status: existingLead.status,
-        contactDetails: existingLead.contactDetails,
-        siteVisitDoneBy: existingLead.siteVisitDoneBy,
-        salesExecutive: existingLead.salesExecutive,
-        proposalPreparedBy: existingLead.proposalPreparedBy,
-        phase: existingLead.phase,
-        avgMonthlyBill: existingLead.avgMonthlyBill,
-        preferredSystem: existingLead.preferredSystem,
-        propertyType: existingLead.propertyType || '',
-        proposedCapacity: existingLead.proposedCapacity,
-        projectValue: existingLead.projectValue,
-        location: existingLead.location,
-        gpsPin: existingLead.gpsPin,
-        customerFolder: existingLead.customerFolder,
-        remarks: existingLead.remarks,
+        clientName: existingLead.clientName, status: existingLead.status,
+        contactDetails: existingLead.contactDetails, siteVisitDoneBy: existingLead.siteVisitDoneBy,
+        salesExecutive: existingLead.salesExecutive, proposalPreparedBy: existingLead.proposalPreparedBy,
+        phase: existingLead.phase, avgMonthlyBill: existingLead.avgMonthlyBill,
+        preferredSystem: existingLead.preferredSystem, propertyType: existingLead.propertyType || '',
+        proposedCapacity: existingLead.proposedCapacity, projectValue: existingLead.projectValue,
+        location: existingLead.location, gpsPin: existingLead.gpsPin,
+        customerFolder: existingLead.customerFolder, remarks: existingLead.remarks,
       });
     }
   }, [existingLead]);
@@ -77,12 +52,7 @@ export function LeadForm() {
         toast('Lead updated successfully', 'success');
       } else {
         const customerCode = nextCode || 'SRS-00000000';
-        await createLead.mutateAsync({
-          ...form as any,
-          customerCode,
-          siteVisitDate: null,
-          createdBy: userProfile?.uid || '',
-        });
+        await createLead.mutateAsync({ ...form as any, customerCode, siteVisitDate: null, createdBy: userProfile?.uid || '' });
         toast('Lead created successfully', 'success');
       }
       navigate('/leads');
@@ -91,14 +61,12 @@ export function LeadForm() {
     }
   }
 
-  if (leadLoading) {
-    return <div className="space-y-4">{[1, 2, 3, 4].map((i) => <div key={i} className="h-20 skeleton rounded-xl" />)}</div>;
-  }
+  if (leadLoading) return <div className="space-y-4">{[1, 2, 3, 4].map((i) => <div key={i} className="h-20 skeleton" />)}</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link to="/leads" className="btn-ghost p-2">
+        <Link to="/leads" className="btn btn-ghost btn-sm p-2">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
@@ -117,9 +85,7 @@ export function LeadForm() {
           </Field>
           <Field label="Status">
             <select value={form.status} onChange={(e) => updateField('status', e.target.value)} className="input-field">
-              {LEAD_STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
+              {LEAD_STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
             </select>
           </Field>
           <Field label="Location">
@@ -131,17 +97,13 @@ export function LeadForm() {
           <Field label="Property Type">
             <select value={form.propertyType} onChange={(e) => updateField('propertyType', e.target.value)} className="input-field">
               <option value="">Select...</option>
-              {PROPERTY_TYPE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
+              {PROPERTY_TYPE_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
             </select>
           </Field>
           <Field label="Phase">
             <select value={form.phase} onChange={(e) => updateField('phase', e.target.value)} className="input-field">
               <option value="">Select...</option>
-              {PHASE_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
+              {PHASE_OPTIONS.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}
             </select>
           </Field>
           <Field label="Avg Monthly Bill (RM)">
@@ -150,9 +112,7 @@ export function LeadForm() {
           <Field label="Preferred System">
             <select value={form.preferredSystem} onChange={(e) => updateField('preferredSystem', e.target.value)} className="input-field">
               <option value="">Select...</option>
-              {PREFERRED_SYSTEM_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
+              {PREFERRED_SYSTEM_OPTIONS.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}
             </select>
           </Field>
           <Field label="Sales Executive">
@@ -180,9 +140,9 @@ export function LeadForm() {
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-end gap-3 border-t border-border/50 pt-5">
-          <Link to="/leads" className="btn-secondary">Cancel</Link>
-          <button type="submit" disabled={createLead.isPending || updateLead.isPending} className="btn-primary">
+        <div className="mt-6 flex items-center justify-end gap-3 border-t border-border pt-5">
+          <Link to="/leads" className="btn btn-secondary btn-md">Cancel</Link>
+          <button type="submit" disabled={createLead.isPending || updateLead.isPending} className="btn btn-primary btn-md">
             <Save className="h-4 w-4" />
             {createLead.isPending || updateLead.isPending ? 'Saving...' : isEdit ? 'Update Lead' : 'Create Lead'}
           </button>

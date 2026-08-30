@@ -30,7 +30,7 @@ export function Login() {
       <div className="relative w-full max-w-md animate-scale-in">
         <div className="card p-8">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/15 glow-accent">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-accent/10 glow-accent">
               <Zap className="h-7 w-7 text-accent" />
             </div>
             <h1 className="text-2xl font-bold text-text">Solar CRM</h1>
@@ -72,7 +72,7 @@ export function Login() {
             </div>
 
             {error && (
-              <div className="rounded-xl bg-danger/15 border border-danger/30 px-4 py-3 text-sm text-danger animate-slide-up">
+              <div className="rounded-lg bg-danger/10 border border-danger/20 px-4 py-3 text-sm text-danger animate-slide-up">
                 {error}
               </div>
             )}
@@ -80,7 +80,7 @@ export function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="btn btn-primary btn-md w-full"
             >
               {loading ? (
                 <span className="flex items-center gap-2">

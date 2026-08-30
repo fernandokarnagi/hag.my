@@ -38,7 +38,7 @@ export function LeadList() {
           <h1 className="text-2xl font-bold text-text">Leads</h1>
           <p className="text-sm text-text-secondary">{filteredLeads.length} total leads</p>
         </div>
-        <Link to="/leads/new" className="btn-primary shrink-0">
+        <Link to="/leads/new" className="btn btn-primary btn-md shrink-0">
           <Plus className="h-4 w-4" />
           <span>New Lead</span>
         </Link>
@@ -122,9 +122,7 @@ export function LeadList() {
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-sm font-medium text-text">{lead.clientName}</td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={lead.status} />
-                      </td>
+                      <td className="px-4 py-3"><StatusBadge status={lead.status} /></td>
                       <td className="px-4 py-3 text-sm text-text-secondary">{lead.salesExecutive || '-'}</td>
                       <td className="px-4 py-3 text-sm text-text-secondary">{lead.location || '-'}</td>
                       <td className="px-4 py-3 text-sm text-text-secondary">{lead.phase || '-'}</td>
@@ -138,22 +136,12 @@ export function LeadList() {
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-text-secondary">
-                Page {page} of {totalPages}
-              </p>
+              <p className="text-sm text-text-secondary">Page {page} of {totalPages}</p>
               <div className="flex gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="btn-secondary disabled:opacity-50"
-                >
+                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="btn btn-secondary btn-sm disabled:opacity-50">
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                  className="btn-secondary disabled:opacity-50"
-                >
+                <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="btn btn-secondary btn-sm disabled:opacity-50">
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
@@ -167,15 +155,8 @@ export function LeadList() {
 
 function StatusBadge({ status }: { status: string }) {
   const label = LEAD_STATUS_OPTIONS.find((o) => o.value === status)?.label || status;
-
-  if (status === 'TURN_ON' || status === 'INSTALLATION_DONE') {
-    return <span className="badge-success">{label}</span>;
-  }
-  if (status === 'NO_RESPONSE') {
-    return <span className="badge-neutral">{label}</span>;
-  }
-  if (status === 'SITE_VISIT' || status === 'PROPOSAL_QUOTATION') {
-    return <span className="badge-warning">{label}</span>;
-  }
+  if (status === 'TURN_ON' || status === 'INSTALLATION_DONE') return <span className="badge-success">{label}</span>;
+  if (status === 'NO_RESPONSE') return <span className="badge-neutral">{label}</span>;
+  if (status === 'SITE_VISIT' || status === 'PROPOSAL_QUOTATION') return <span className="badge-warning">{label}</span>;
   return <span className="badge-info">{label}</span>;
 }
