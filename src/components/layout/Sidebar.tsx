@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, ClipboardList, FileText, Settings, LogOut, Menu, X, Zap, User, UserCog, ChevronDown,
+  LayoutDashboard, Users, ClipboardList, FileText, Settings, LogOut, Menu, X, Zap, User, UserCog,
 } from 'lucide-react';
 import { logoutUser } from '@/services/authService';
 import { useAuthContext } from '@/components/AuthProvider';
@@ -21,7 +21,6 @@ const settingsItems = [
 export function Sidebar() {
   const { userProfile } = useAuthContext();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const accessibleNavItems = navItems.filter((item) =>
     canAccessPage(userProfile?.role, item.page)
@@ -73,30 +72,24 @@ export function Sidebar() {
           ))}
 
           {accessibleSettingsItems.length > 0 && (
-            <div>
-              <button
-                onClick={() => setSettingsOpen(!settingsOpen)}
-                className="sidebar-link w-full"
-              >
-                <Settings className="h-5 w-5" />
-                <span className="flex-1 text-left">Settings</span>
-                <ChevronDown className={`h-4 w-4 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {settingsOpen && (
-                <div className="ml-4 mt-1 space-y-1">
-                  {accessibleSettingsItems.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      onClick={() => setMobileOpen(false)}
-                      className={({ isActive }) => isActive ? 'sidebar-link-active' : 'sidebar-link'}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {item.label}
-                    </NavLink>
-                  ))}
-                </div>
-              )}
+            <div className="mt-2">
+              <div className="flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase text-text-muted">
+                <Settings className="h-4 w-4" />
+                Settings
+              </div>
+              <div className="space-y-1">
+                {accessibleSettingsItems.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setMobileOpen(false)}
+                    className={({ isActive }) => isActive ? 'sidebar-link-active pl-10' : 'sidebar-link pl-10'}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </NavLink>
+                ))}
+              </div>
             </div>
           )}
         </nav>
