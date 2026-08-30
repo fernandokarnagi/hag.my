@@ -313,7 +313,7 @@ function CollapsiblePanel({ title, icon, expanded, onToggle, children, badge }: 
         </div>
         {expanded ? <ChevronUp className="h-5 w-5 text-text-muted" /> : <ChevronDown className="h-5 w-5 text-text-muted" />}
       </button>
-      {expanded && <div className="px-4 pb-4 border-t border-border">{children}</div>}
+      {expanded && <div className="px-4 pt-4 pb-4 border-t border-border">{children}</div>}
     </div>
   );
 }
