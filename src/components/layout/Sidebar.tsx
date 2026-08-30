@@ -49,15 +49,15 @@ export function Sidebar() {
 
       <aside className={`sidebar flex flex-col transition-transform duration-300 ease-out md:translate-x-0 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Header */}
-        <div className="flex h-16 items-center gap-3 border-b border-border px-5 shrink-0">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10">
-            <Zap className="h-5 w-5 text-accent" />
+        <div className="flex h-16 items-center gap-3 border-b border-white/10 px-5 shrink-0">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+            <Zap className="h-5 w-5 text-white" />
           </div>
           <div>
-            <span className="text-base font-semibold text-text">HAG Solar CRM</span>
-            <p className="text-[10px] text-text-muted">Management System</p>
+            <span className="text-base font-semibold text-white">HAG Solar CRM</span>
+            <p className="text-[10px] text-white/60">Management System</p>
           </div>
-          <button onClick={() => setMobileOpen(false)} className="ml-auto text-text-muted hover:text-text md:hidden">
+          <button onClick={() => setMobileOpen(false)} className="ml-auto text-white/70 hover:text-white md:hidden">
             <X className="h-5 w-5" />
           </button>
         </div>
