@@ -32,7 +32,16 @@ export function Login() {
     try {
       await loginUser(email, password);
     } catch (err: any) {
-      setError(err.message || 'Failed to login');
+      const msg = err.message || 'Failed to login';
+      if (msg.includes('invalid-credential') || msg.includes('wrong-password') || msg.includes('user-not-found')) {
+        setError('Invalid email or password. Please try again.');
+      } else if (msg.includes('too-many-requests')) {
+        setError('Too many failed attempts. Please try again later.');
+      } else if (msg.includes('user-disabled')) {
+        setError('This account has been disabled. Contact admin.');
+      } else {
+        setError(msg);
+      }
       setSubmitting(false);
       setLoginSuccess(false);
     }
