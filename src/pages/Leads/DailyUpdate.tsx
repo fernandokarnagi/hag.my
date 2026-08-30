@@ -11,7 +11,7 @@ export function DailyUpdate() {
   const { userProfile } = useAuthContext();
   const { data: leads = [], isLoading } = useLeads();
   const updateLead = useUpdateLead();
-  const [dotStates, setDotStates] = useState<Record<string, Record<string, boolean>>>({});
+  const [dotOverrides, setDotOverrides] = useState<Record<string, Record<string, boolean>>>({});
   const [search, setSearch] = useState('');
   const [salesFilter, setSalesFilter] = useState('');
 
@@ -24,15 +24,15 @@ export function DailyUpdate() {
     return true;
   });
 
-  function isDotDone(leadId: string, stage: string): boolean {
-    if (dotStates[leadId] && stage in dotStates[leadId]) {
-      return dotStates[leadId][stage];
+  function isDotDone(leadId: string, stage: string, completedStages?: string[]): boolean {
+    if (dotOverrides[leadId] && stage in dotOverrides[leadId]) {
+      return dotOverrides[leadId][stage];
     }
-    return false;
+    return completedStages?.includes(stage) || false;
   }
 
   function handleDotClick(leadId: string, stage: string) {
-    setDotStates((prev) => ({
+    setDotOverrides((prev) => ({
       ...prev,
       [leadId]: {
         ...prev[leadId],
@@ -41,9 +41,17 @@ export function DailyUpdate() {
     }));
   }
 
-  function getHighestStage(stages: Record<string, boolean>): LeadStatus {
+  function getSelectedStages(leadId: string, completedStages?: string[]): string[] {
+    const overrides = dotOverrides[leadId] || {};
+    if (Object.keys(overrides).length > 0) {
+      return Object.keys(overrides).filter((s) => overrides[s]);
+    }
+    return completedStages || [];
+  }
+
+  function getHighestStage(stages: string[]): LeadStatus {
     for (let i = PIPELINE_STAGES.length - 1; i >= 0; i--) {
-      if (stages[PIPELINE_STAGES[i]]) {
+      if (stages.includes(PIPELINE_STAGES[i])) {
         return PIPELINE_STAGES[i];
       }
     }
@@ -52,14 +60,15 @@ export function DailyUpdate() {
 
   async function handleSave() {
     if (!userProfile) return;
-    const updates = Object.entries(dotStates).map(([leadId, stages]) => {
+    const updates = Object.keys(dotOverrides).map((leadId) => {
       const lead = leads.find((l) => l.id === leadId);
       if (!lead) return null;
-      const newStatus = getHighestStage(stages);
-      if (newStatus === lead.status) return null;
+      const selectedStages = getSelectedStages(leadId, lead.completedStages);
+      const newStatus = getHighestStage(selectedStages);
+      if (newStatus === lead.status && JSON.stringify(selectedStages.sort()) === JSON.stringify((lead.completedStages || []).sort())) return null;
       return {
         id: leadId,
-        data: { status: newStatus, completedStages: Object.keys(stages).filter((s) => stages[s]) },
+        data: { status: newStatus, completedStages: selectedStages },
         userId: userProfile.uid,
         userName: userProfile.displayName,
         oldData: { status: lead.status, customerCode: lead.customerCode },
@@ -73,17 +82,14 @@ export function DailyUpdate() {
 
     try {
       await Promise.all(updates.map((u) => updateLead.mutateAsync(u!)));
-      setDotStates({});
+      setDotOverrides({});
       toast(`${updates.length} leads updated`, 'success');
     } catch {
       toast('Failed to save', 'error');
     }
   }
 
-  function hasChanges() {
-    return Object.keys(dotStates).length > 0;
-  }
-
+  const hasChanges = Object.keys(dotOverrides).length > 0;
   const salesExecs = [...new Set(leads.map((l) => l.salesExecutive).filter(Boolean))].sort();
 
   if (isLoading) return <div className="space-y-4">{[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-12 skeleton" />)}</div>;
@@ -96,9 +102,9 @@ export function DailyUpdate() {
           <p className="text-sm text-text-secondary">Click dots to toggle — each is independent</p>
         </div>
         <div className="flex gap-2">
-          {hasChanges() && (
+          {hasChanges && (
             <>
-              <button onClick={() => setDotStates({})} className="btn btn-secondary btn-md"><RotateCcw className="h-4 w-4" /> Reset</button>
+              <button onClick={() => setDotOverrides({})} className="btn btn-secondary btn-md"><RotateCcw className="h-4 w-4" /> Reset</button>
               <button onClick={handleSave} disabled={updateLead.isPending} className="btn btn-primary btn-md"><Save className="h-4 w-4" /> {updateLead.isPending ? 'Saving...' : 'Save'}</button>
             </>
           )}
@@ -147,7 +153,7 @@ export function DailyUpdate() {
                     <td className="sticky left-[100px] z-10 bg-white px-3 py-2.5 text-xs border-r border-border">{lead.clientName}</td>
                     <td className="px-3 py-2.5 text-xs text-text-secondary">{lead.salesExecutive || '-'}</td>
                     {PIPELINE_STAGES.map((stage) => {
-                      const done = isDotDone(lead.id, stage);
+                      const done = isDotDone(lead.id, stage, lead.completedStages);
                       return (
                         <td key={stage} className="px-1 py-2.5 text-center">
                           <button

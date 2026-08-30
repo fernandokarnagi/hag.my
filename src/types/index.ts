@@ -119,6 +119,7 @@ export interface Lead {
   gpsPin: string;
   customerFolder: string;
   remarks: string;
+  completedStages?: string[];
   createdAt: Timestamp;
   updatedAt: Timestamp;
   createdBy: string;
