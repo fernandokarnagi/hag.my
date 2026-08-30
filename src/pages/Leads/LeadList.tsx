@@ -4,7 +4,7 @@ import { useLeads } from '@/hooks/useLeads';
 import { useAuthContext } from '@/components/AuthProvider';
 import { LEAD_STATUS_OPTIONS, PROPERTY_TYPE_OPTIONS } from '@/types';
 import type { LeadStatus } from '@/types';
-import { Plus, Search, ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { hasPermission } from '@/lib/permissions';
 
 const PAGE_SIZE = 20;
@@ -55,16 +55,13 @@ export function LeadList() {
 
       <div className="card p-4">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 text-text-muted" />
-            <input
-              type="text"
-              placeholder="Search name, code, phone, location..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="input-field pl-9"
-            />
-          </div>
+          <input
+            type="text"
+            placeholder="Search name, code, phone, location..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            className="input-field flex-1 min-w-[200px]"
+          />
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field w-auto min-w-[160px]">
             <option value="">All Status</option>
             {LEAD_STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
