@@ -13,6 +13,20 @@ service cloud.firestore {
       allow delete: if isAuthenticated();
     }
 
+    match /leadStatuses/{statusId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+
+    match /propertyTypes/{typeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+
     match /statusUpdates/{updateId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated();
