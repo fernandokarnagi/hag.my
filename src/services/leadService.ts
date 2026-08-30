@@ -1,39 +1,58 @@
 import {
-  collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  limit,
-  Timestamp,
+  collection, doc, addDoc, updateDoc, deleteDoc, getDoc, getDocs,
+  query, where, orderBy, limit, Timestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Lead, LeadStatus } from '@/types';
+import { logLeadCreated, logLeadUpdated, logLeadDeleted } from './auditService';
 
 const LEADS_REF = collection(db, 'leads');
 
-export async function createLead(data: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>) {
+export async function createLead(data: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>, userId: string, userName: string) {
   const now = Timestamp.now();
   const docRef = await addDoc(LEADS_REF, {
     ...data,
     createdAt: now,
     updatedAt: now,
   });
+  await logLeadCreated(docRef.id, data.customerCode, userId, userName);
   return docRef.id;
 }
 
-export async function updateLead(id: string, data: Partial<Lead>) {
+export async function updateLead(
+  id: string,
+  data: Partial<Lead>,
+  userId: string,
+  userName: string,
+  oldData?: Partial<Lead>
+) {
   const ref = doc(db, 'leads', id);
+
+  if (oldData) {
+    const changes: { field: string; oldValue: string; newValue: string }[] = [];
+    for (const [key, value] of Object.entries(data)) {
+      if (key === 'updatedAt' || key === 'createdBy') continue;
+      const oldVal = oldData[key as keyof Lead];
+      const newVal = value;
+      if (String(oldVal) !== String(newVal)) {
+        changes.push({
+          field: key,
+          oldValue: String(oldVal || ''),
+          newValue: String(newVal || ''),
+        });
+      }
+    }
+    if (changes.length > 0) {
+      await logLeadUpdated(id, oldData.customerCode || '', userId, userName, changes);
+    }
+  }
+
   await updateDoc(ref, { ...data, updatedAt: Timestamp.now() });
 }
 
-export async function deleteLead(id: string) {
+export async function deleteLead(id: string, customerCode: string, userId: string, userName: string) {
   await deleteDoc(doc(db, 'leads', id));
+  await logLeadDeleted(id, customerCode, userId, userName);
 }
 
 export async function getLead(id: string): Promise<Lead | null> {
@@ -48,24 +67,16 @@ export async function getLeads(filters?: {
   propertyType?: string;
   search?: string;
   limit?: number;
+  createdBy?: string;
 }): Promise<Lead[]> {
   let q = query(LEADS_REF, orderBy('createdAt', 'desc'));
 
-  if (filters?.status) {
-    q = query(q, where('status', '==', filters.status));
-  }
-  if (filters?.salesExecutive) {
-    q = query(q, where('salesExecutive', '==', filters.salesExecutive));
-  }
-  if (filters?.location) {
-    q = query(q, where('location', '==', filters.location));
-  }
-  if (filters?.propertyType) {
-    q = query(q, where('propertyType', '==', filters.propertyType));
-  }
-  if (filters?.limit) {
-    q = query(q, limit(filters.limit));
-  }
+  if (filters?.status) q = query(q, where('status', '==', filters.status));
+  if (filters?.salesExecutive) q = query(q, where('salesExecutive', '==', filters.salesExecutive));
+  if (filters?.location) q = query(q, where('location', '==', filters.location));
+  if (filters?.propertyType) q = query(q, where('propertyType', '==', filters.propertyType));
+  if (filters?.createdBy) q = query(q, where('createdBy', '==', filters.createdBy));
+  if (filters?.limit) q = query(q, limit(filters.limit));
 
   const snap = await getDocs(q);
   let leads = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Lead));
@@ -93,12 +104,9 @@ export async function getNextCustomerCode(): Promise<string> {
   const q = query(LEADS_REF, where('customerCode', '>=', prefix), where('customerCode', '<', `${prefix}z`), orderBy('customerCode', 'desc'), limit(1));
   const snap = await getDocs(q);
 
-  if (snap.empty) {
-    return `${prefix}0001`;
-  }
+  if (snap.empty) return `${prefix}0001`;
 
   const lastCode = snap.docs[0].data().customerCode;
   const lastNum = parseInt(lastCode.slice(-4), 10);
-  const nextNum = (lastNum + 1).toString().padStart(4, '0');
-  return `${prefix}${nextNum}`;
+  return `${prefix}${(lastNum + 1).toString().padStart(4, '0')}`;
 }

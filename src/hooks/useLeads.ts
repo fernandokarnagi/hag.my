@@ -1,11 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getLeads,
-  getLead,
-  createLead,
-  updateLead,
-  deleteLead,
-  getNextCustomerCode,
+  getLeads, getLead, createLead, updateLead, deleteLead, getNextCustomerCode,
 } from '@/services/leadService';
 import type { Lead, LeadStatus } from '@/types';
 
@@ -16,6 +11,7 @@ interface UseLeadsOptions {
   propertyType?: string;
   search?: string;
   limit?: number;
+  createdBy?: string;
   enabled?: boolean;
 }
 
@@ -38,7 +34,8 @@ export function useLead(id: string | undefined) {
 export function useCreateLead() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Parameters<typeof createLead>[0]) => createLead(data),
+    mutationFn: (data: { leadData: Parameters<typeof createLead>[0]; userId: string; userName: string }) =>
+      createLead(data.leadData, data.userId, data.userName),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
     },
@@ -48,8 +45,13 @@ export function useCreateLead() {
 export function useUpdateLead() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Lead> }) =>
-      updateLead(id, data),
+    mutationFn: (data: {
+      id: string;
+      data: Partial<Lead>;
+      userId: string;
+      userName: string;
+      oldData?: Partial<Lead>;
+    }) => updateLead(data.id, data.data, data.userId, data.userName, data.oldData),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['lead', variables.id] });
@@ -60,7 +62,8 @@ export function useUpdateLead() {
 export function useDeleteLead() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteLead(id),
+    mutationFn: (data: { id: string; customerCode: string; userId: string; userName: string }) =>
+      deleteLead(data.id, data.customerCode, data.userId, data.userName),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
     },

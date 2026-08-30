@@ -1,21 +1,28 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLeads } from '@/hooks/useLeads';
+import { useAuthContext } from '@/components/AuthProvider';
 import { LEAD_STATUS_OPTIONS, PROPERTY_TYPE_OPTIONS } from '@/types';
 import type { LeadStatus } from '@/types';
 import { Plus, Search, ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { hasPermission } from '@/lib/permissions';
 
 const PAGE_SIZE = 20;
 
 export function LeadList() {
+  const { userProfile } = useAuthContext();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [propertyFilter, setPropertyFilter] = useState('');
   const [page, setPage] = useState(1);
 
+  const canCreate = hasPermission(userProfile?.role, 'canCreateLead');
+  const canViewAll = hasPermission(userProfile?.role, 'canViewAllLeads');
+
   const { data: allLeads = [], isLoading } = useLeads({
     status: (statusFilter as LeadStatus) || undefined,
     propertyType: propertyFilter || undefined,
+    createdBy: !canViewAll ? userProfile?.uid : undefined,
   });
 
   const filteredLeads = search
@@ -38,10 +45,12 @@ export function LeadList() {
           <h1 className="text-2xl font-bold text-text">Leads</h1>
           <p className="text-sm text-text-secondary">{filteredLeads.length} total leads</p>
         </div>
-        <Link to="/leads/new" className="btn btn-primary btn-md shrink-0">
-          <Plus className="h-4 w-4" />
-          <span>New Lead</span>
-        </Link>
+        {canCreate && (
+          <Link to="/leads/new" className="btn btn-primary btn-md shrink-0">
+            <Plus className="h-4 w-4" />
+            <span>New Lead</span>
+          </Link>
+        )}
       </div>
 
       <div className="card p-4">
@@ -56,34 +65,20 @@ export function LeadList() {
               className="input-field pl-9"
             />
           </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="input-field w-auto min-w-[160px]"
-          >
+          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field w-auto min-w-[160px]">
             <option value="">All Status</option>
-            {LEAD_STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
+            {LEAD_STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
-          <select
-            value={propertyFilter}
-            onChange={(e) => { setPropertyFilter(e.target.value); setPage(1); }}
-            className="input-field w-auto min-w-[160px]"
-          >
+          <select value={propertyFilter} onChange={(e) => { setPropertyFilter(e.target.value); setPage(1); }} className="input-field w-auto min-w-[160px]">
             <option value="">All Property Types</option>
-            {PROPERTY_TYPE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
+            {PROPERTY_TYPE_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
         </div>
       </div>
 
       {isLoading ? (
         <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-14 skeleton" />
-          ))}
+          {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-14 skeleton" />)}
         </div>
       ) : (
         <>
@@ -105,9 +100,7 @@ export function LeadList() {
                   <tr>
                     <td colSpan={7} className="px-4 py-16 text-center">
                       <div className="flex flex-col items-center">
-                        <div className="mb-4 rounded-full bg-surface-light p-4">
-                          <Users className="h-8 w-8 text-text-muted" />
-                        </div>
+                        <div className="mb-4 rounded-full bg-surface-light p-4"><Users className="h-8 w-8 text-text-muted" /></div>
                         <p className="text-text-secondary">No leads found</p>
                         <p className="text-sm text-text-muted">Try adjusting your filters</p>
                       </div>
@@ -138,12 +131,8 @@ export function LeadList() {
             <div className="flex items-center justify-between">
               <p className="text-sm text-text-secondary">Page {page} of {totalPages}</p>
               <div className="flex gap-2">
-                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="btn btn-secondary btn-sm disabled:opacity-50">
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="btn btn-secondary btn-sm disabled:opacity-50">
-                  <ChevronRight className="h-4 w-4" />
-                </button>
+                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="btn btn-secondary btn-sm disabled:opacity-50"><ChevronLeft className="h-4 w-4" /></button>
+                <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="btn btn-secondary btn-sm disabled:opacity-50"><ChevronRight className="h-4 w-4" /></button>
               </div>
             </div>
           )}

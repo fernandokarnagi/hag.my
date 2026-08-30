@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLeads, useUpdateLead } from '@/hooks/useLeads';
+import { useAuthContext } from '@/components/AuthProvider';
 import { useToast } from '@/components/Toast';
 import { PIPELINE_STAGES, LEAD_STATUS_OPTIONS } from '@/types';
 import type { LeadStatus } from '@/types';
@@ -7,9 +8,10 @@ import { Save, RotateCcw, ClipboardList } from 'lucide-react';
 
 export function DailyUpdate() {
   const { toast } = useToast();
+  const { userProfile } = useAuthContext();
   const { data: leads = [], isLoading } = useLeads();
   const updateLead = useUpdateLead();
-  const [edits, setEdits] = useState<Record<string, LeadStatus>>({});
+  const [edits, setEdits] = useState<Record<string, { status: LeadStatus; oldData: { status: LeadStatus; customerCode: string } }>>({});
   const [search, setSearch] = useState('');
   const [salesFilter, setSalesFilter] = useState('');
 
@@ -22,18 +24,25 @@ export function DailyUpdate() {
     return true;
   });
 
-  function handleDotClick(leadId: string, stage: LeadStatus) {
+  function handleDotClick(leadId: string, stage: LeadStatus, currentLead: { status: LeadStatus; customerCode: string }) {
     setEdits((prev) => {
       const current = prev[leadId];
-      if (current === stage) { const next = { ...prev }; delete next[leadId]; return next; }
-      return { ...prev, [leadId]: stage };
+      if (current?.status === stage) {
+        const next = { ...prev };
+        delete next[leadId];
+        return next;
+      }
+      return { ...prev, [leadId]: { status: stage, oldData: currentLead } };
     });
   }
 
   async function handleSave() {
+    if (!userProfile) return;
     const entries = Object.entries(edits);
     try {
-      await Promise.all(entries.map(([id, status]) => updateLead.mutateAsync({ id, data: { status } })));
+      await Promise.all(entries.map(([id, { status, oldData }]) =>
+        updateLead.mutateAsync({ id, data: { status }, userId: userProfile.uid, userName: userProfile.displayName, oldData })
+      ));
       setEdits({});
       toast(`${entries.length} leads updated successfully`, 'success');
     } catch { toast('Failed to save changes', 'error'); }
@@ -54,12 +63,8 @@ export function DailyUpdate() {
         <div className="flex gap-2">
           {hasEdits && (
             <>
-              <button onClick={() => setEdits({})} className="btn btn-secondary btn-md">
-                <RotateCcw className="h-4 w-4" /> Reset ({Object.keys(edits).length})
-              </button>
-              <button onClick={handleSave} disabled={updateLead.isPending} className="btn btn-primary btn-md">
-                <Save className="h-4 w-4" /> {updateLead.isPending ? 'Saving...' : `Save ${Object.keys(edits).length} Changes`}
-              </button>
+              <button onClick={() => setEdits({})} className="btn btn-secondary btn-md"><RotateCcw className="h-4 w-4" /> Reset ({Object.keys(edits).length})</button>
+              <button onClick={handleSave} disabled={updateLead.isPending} className="btn btn-primary btn-md"><Save className="h-4 w-4" /> {updateLead.isPending ? 'Saving...' : `Save ${Object.keys(edits).length} Changes`}</button>
             </>
           )}
         </div>
@@ -110,10 +115,10 @@ export function DailyUpdate() {
                       <td className="px-3 py-2.5 text-xs text-text-secondary">{lead.salesExecutive || '-'}</td>
                       {PIPELINE_STAGES.map((stage, i) => {
                         const isDone = i < currentStageIndex;
-                        const isEdited = edits[lead.id] === stage;
+                        const isEdited = edits[lead.id]?.status === stage;
                         return (
                           <td key={stage} className="px-1 py-2.5 text-center">
-                            <button onClick={() => handleDotClick(lead.id, stage)} className={`h-5 w-5 rounded-full border-2 transition-all duration-200 ${isEdited ? 'border-warning bg-warning' : isDone ? 'border-success bg-success' : 'border-border hover:border-text-muted hover:scale-110'}`} title={`${lead.clientName} → ${LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label}`} />
+                            <button onClick={() => handleDotClick(lead.id, stage, { status: lead.status, customerCode: lead.customerCode })} className={`h-5 w-5 rounded-full border-2 transition-all duration-200 ${isEdited ? 'border-warning bg-warning' : isDone ? 'border-success bg-success' : 'border-border hover:border-text-muted hover:scale-110'}`} title={`${lead.clientName} → ${LEAD_STATUS_OPTIONS.find((o) => o.value === stage)?.label}`} />
                           </td>
                         );
                       })}
